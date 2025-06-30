@@ -40,7 +40,7 @@ const yData = computed(() =>
 const renderChart = () => {
   renderEcharts({
     grid: {
-      bottom: 0,
+      bottom: 30,
       containLabel: true,
       left: '1%',
       right: '1%',
@@ -80,6 +80,13 @@ const renderChart = () => {
         show: true,
       },
       type: 'category',
+      name: '累计运行时间（小时）',
+      nameLocation: 'middle',
+      nameGap: 30,
+      nameTextStyle: {
+        color: '#333',
+        fontSize: 14,
+      },
     },
     yAxis: [
       {

@@ -37,6 +37,33 @@ const routes: RouteRecordRaw[] = [
           icon: 'material-symbols:table-view',
         },
       },
+      {
+        name: 'Product',
+        path: 'product',
+        component: () => import('#/views/datamanage/product/index.vue'),
+        meta: {
+          title: '产品信息数据管理',
+          icon: 'material-symbols:table-view',
+        },
+      },
+      {
+        name: 'Repair',
+        path: 'repair',
+        component: () => import('#/views/datamanage/repair/index.vue'),
+        meta: {
+          title: '造修阶段数据管理',
+          icon: 'material-symbols:table-view',
+        },
+      },
+      {
+        name: 'Replace',
+        path: 'replace',
+        component: () => import('#/views/datamanage/replace/index.vue'),
+        meta: {
+          title: '必换件数据管理',
+          icon: 'material-symbols:table-view',
+        },
+      },
     ],
   },
 ];

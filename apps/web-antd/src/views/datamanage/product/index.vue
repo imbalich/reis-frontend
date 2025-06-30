@@ -1,20 +1,15 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { DmFailureRes } from '#/api';
-
-import { ref, watch } from 'vue';
+import type { DmProductRes } from '#/api';
 
 import { Page } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getDmFailureListApi, getDmFaultLocationByModelApi } from '#/api';
+import { getDmProductListApi } from '#/api';
 
 import { columns, querySchema } from './data';
-
-const formModel = ref({ product_model: '', fault_location: '' });
-const faultLocationOptions = ref([]);
 
 const formOptions: VbenFormProps = {
   collapsed: true,
@@ -25,7 +20,7 @@ const formOptions: VbenFormProps = {
   schema: querySchema,
 };
 
-const gridOptions: VxeTableGridOptions<DmFailureRes> = {
+const gridOptions: VxeTableGridOptions<DmProductRes> = {
   rowConfig: {
     keyField: 'id',
   },
@@ -52,7 +47,7 @@ const gridOptions: VxeTableGridOptions<DmFailureRes> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        return await getDmFailureListApi({
+        return await getDmProductListApi({
           page: page.currentPage,
           size: page.pageSize,
           ...formValues,
@@ -63,23 +58,6 @@ const gridOptions: VxeTableGridOptions<DmFailureRes> = {
 };
 
 const [Grid] = useVbenVxeGrid({ formOptions, gridOptions });
-
-watch(
-  () => formModel.value.product_model,
-  async (val) => {
-    if (!val) {
-      faultLocationOptions.value = [];
-      formModel.value.fault_location = '';
-      return;
-    }
-    const res = await getDmFaultLocationByModelApi({ product_model: val });
-    faultLocationOptions.value = res.map((item: string) => ({
-      label: item,
-      value: item,
-    }));
-    formModel.value.fault_location = '';
-  },
-);
 </script>
 
 <template>

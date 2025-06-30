@@ -5,7 +5,6 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DmEbomParams, DmEbomRes } from '#/api';
 
 import { Page } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDmEbomListApi } from '#/api';
@@ -16,7 +15,7 @@ const formOptions: VbenFormProps = {
   collapsed: true,
   showCollapseButton: true,
   submitButtonOptions: {
-    content: $t('page.form.query'),
+    content: '查询',
   },
   schema: querySchema,
 };

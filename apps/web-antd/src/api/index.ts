@@ -6,4 +6,7 @@ export * from './failure';
 export * from './fitting';
 export * from './log';
 export * from './monitor';
+export * from './product';
+export * from './repair';
+export * from './replace';
 export * from './role';

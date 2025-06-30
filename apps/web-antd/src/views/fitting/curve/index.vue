@@ -21,7 +21,7 @@ const [Form, formApi] = useVbenForm({
   layout: 'horizontal',
   showDefaultActions: false,
   schema,
-  wrapperClass: 'grid grid-cols-3 gap-4',
+  wrapperClass: 'grid grid-cols-4 gap-4',
 });
 
 const fittingData = ref<any[]>([]);
@@ -147,24 +147,24 @@ const chartStrategy = computed(() =>
 <template>
   <div class="flex flex-col items-center px-4">
     <!-- 顶部参数输入区 -->
-    <div class="mt-3 w-full">
+    <div class="mt-4 w-full">
       <a-card title="参数输入区">
         <Form />
         <a-button
           type="primary"
           @click="handleSubmit"
-          style="position: absolute; bottom: 30px; right: 60px"
+          style="position: absolute; bottom: 10px; right: 40px"
         >
           提交
         </a-button>
       </a-card>
     </div>
     <!-- 下方左右布局 -->
-    <div class="mt-4 flex w-full space-x-4">
+    <div class="mt-4 flex w-full space-x-4" style="height: 440px">
       <!-- 左侧策略选择表单 -->
       <a-card title="策略选择区" style="width: 300px">
         <a-form layout="vertical">
-          <a-form-item label="优度检验">
+          <a-form-item label="优度检验" style="margin-bottom: 40px">
             <a-select v-model:value="selectedGoodness" style="width: 100%">
               <a-select-option
                 v-for="item in goodnessOptions"
@@ -175,7 +175,7 @@ const chartStrategy = computed(() =>
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item label="分布类型">
+          <a-form-item label="分布类型" style="margin-bottom: 40px">
             <a-select v-model:value="selectedDistribution" style="width: 100%">
               <a-select-option
                 v-for="item in distributionOptions"
@@ -205,6 +205,7 @@ const chartStrategy = computed(() =>
           v-if="chartStrategy"
           :func-type="activeFuncType"
           :strategy="chartStrategy"
+          style="height: 350px"
         />
         <div v-else style="text-align: center; color: #aaa; padding: 60px 0">
           请先查询并选择分布类型

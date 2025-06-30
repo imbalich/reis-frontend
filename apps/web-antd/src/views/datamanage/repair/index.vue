@@ -1,20 +1,15 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { DmFailureRes } from '#/api';
-
-import { ref, watch } from 'vue';
+import type { DmRepairRes } from '#/api';
 
 import { Page } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getDmFailureListApi, getDmFaultLocationByModelApi } from '#/api';
+import { getDmRepairListApi } from '#/api';
 
 import { columns, querySchema } from './data';
-
-const formModel = ref({ product_model: '', fault_location: '' });
-const faultLocationOptions = ref([]);
 
 const formOptions: VbenFormProps = {
   collapsed: true,
@@ -25,7 +20,7 @@ const formOptions: VbenFormProps = {
   schema: querySchema,
 };
 
-const gridOptions: VxeTableGridOptions<DmFailureRes> = {
+const gridOptions: VxeTableGridOptions<DmRepairRes> = {
   rowConfig: {
     keyField: 'id',
   },
@@ -45,14 +40,11 @@ const gridOptions: VxeTableGridOptions<DmFailureRes> = {
   scrollX: {
     enabled: true,
   },
-  columns: (columns ?? []).map((col) => ({
-    ...col,
-    width: col.width || 180, // 给每列设置宽度，防止自动收缩
-  })),
+  columns,
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        return await getDmFailureListApi({
+        return await getDmRepairListApi({
           page: page.currentPage,
           size: page.pageSize,
           ...formValues,
@@ -63,23 +55,6 @@ const gridOptions: VxeTableGridOptions<DmFailureRes> = {
 };
 
 const [Grid] = useVbenVxeGrid({ formOptions, gridOptions });
-
-watch(
-  () => formModel.value.product_model,
-  async (val) => {
-    if (!val) {
-      faultLocationOptions.value = [];
-      formModel.value.fault_location = '';
-      return;
-    }
-    const res = await getDmFaultLocationByModelApi({ product_model: val });
-    faultLocationOptions.value = res.map((item: string) => ({
-      label: item,
-      value: item,
-    }));
-    formModel.value.fault_location = '';
-  },
-);
 </script>
 
 <template>
