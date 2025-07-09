@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '基础数据管理',
       icon: 'material-symbols:dataset',
-      order: 6,
+      order: 5,
     },
     children: [
       {

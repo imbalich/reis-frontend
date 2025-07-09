@@ -10,3 +10,4 @@ export * from './product';
 export * from './repair';
 export * from './replace';
 export * from './role';
+export * from './sense';

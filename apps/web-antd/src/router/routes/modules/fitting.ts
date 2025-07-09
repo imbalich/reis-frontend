@@ -19,6 +19,15 @@ const routes: RouteRecordRaw[] = [
           icon: 'ant-design:line-chart-outlined',
         },
       },
+      {
+        name: 'Opt',
+        path: 'opt',
+        component: () => import('#/views/fitting/opt/index.vue'),
+        meta: {
+          title: '最佳维护周期',
+          icon: 'ant-design:line-chart-outlined',
+        },
+      },
     ],
   },
 ];
