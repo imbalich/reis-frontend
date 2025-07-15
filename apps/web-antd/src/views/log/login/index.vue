@@ -22,7 +22,7 @@ const formOptions: VbenFormProps = {
   collapsed: true,
   showCollapseButton: true,
   submitButtonOptions: {
-    content: $t('page.form.query'),
+    content: $t('common.form.query'),
   },
   schema: querySchema,
 };
@@ -60,6 +60,10 @@ const gridOptions: VxeTableGridOptions<LoginLogResult> = {
 
 const gridEvents: VxeGridListeners<LoginLogResult> = {
   checkboxChange: () => {
+    const data = gridApi.grid.getCheckboxRecords(true);
+    checkedRows.value = data.map((item: any) => item.id);
+  },
+  checkboxAll: () => {
     const data = gridApi.grid.getCheckboxRecords(true);
     checkedRows.value = data.map((item: any) => item.id);
   },

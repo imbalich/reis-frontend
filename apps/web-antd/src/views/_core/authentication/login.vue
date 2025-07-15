@@ -9,8 +9,8 @@ import { $t } from '@vben/locales';
 
 import { Image, notification } from 'ant-design-vue';
 
+import OAuth2Login from '#/plugins/oauth2/views/login.vue';
 import { useAuthStore } from '#/store';
-import OAuth2Login from '#/views/oauth2/login.vue';
 
 defineOptions({ name: 'Login' });
 
@@ -40,8 +40,12 @@ const showNotification = () => {
           ),
         ]),
         h('li', null, [
-          '计划于第二季度结束前完成',
-          h('span', { class: 'text-gray-500 ml-1' }, '（可能延期）'),
+          '作者已在拼命肝',
+          h(
+            'span',
+            { class: 'text-gray-500 ml-1' },
+            '（为此带来的不便请谅解）',
+          ),
         ]),
       ]),
     ]),
