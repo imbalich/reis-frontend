@@ -11,8 +11,8 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        name: 'Curve',
-        path: 'curve',
+        name: 'CurveFit',
+        path: '/fitting/curve',
         component: () => import('#/views/fitting/curve/index.vue'),
         meta: {
           title: '曲线拟合',
@@ -20,8 +20,8 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: 'Opt',
-        path: 'opt',
+        name: 'OptFit',
+        path: '/fitting/opt',
         component: () => import('#/views/fitting/opt/index.vue'),
         meta: {
           title: '最佳维护周期',

@@ -24,6 +24,7 @@ export interface SenseSortResult {
   self_create_by: number;
   extra_source_code: number;
   extra_supplier: number;
+  version: number;
   categorical_analysis: string;
 }
 
@@ -32,22 +33,22 @@ export interface DmProcessNameByModelParams {
 }
 
 export interface DmByProcessNameParams {
+  product_model?: string;
   process_name?: string;
 }
 
 export interface DmCheckBezierByProjectParams {
+  product_model?: string;
+  process_name?: string;
   check_project?: string;
 }
 
 export function createSenseSortApi(params: SenseSortParams) {
-  return requestClient.post<SenseSortResult>(
-    '/api/v1/sense/sort/sense',
-    params,
-    {
-      params,
-      paramsSerializer: 'repeat',
+  return requestClient.post('/api/v1/sense/sort/sense', params, {
+    headers: {
+      'Content-Type': 'application/json',
     },
-  );
+  });
 }
 
 export function getSenseSortApi(params: SenseSortParams) {

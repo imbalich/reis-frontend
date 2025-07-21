@@ -6,17 +6,17 @@ const routes: RouteRecordRaw[] = [
     path: '/sense',
     meta: {
       title: '敏感因素分析',
-      icon: 'ant-design:medium-circle-filed',
+      icon: 'ant-design:medium-circle-filled',
       order: 7,
     },
     children: [
       {
-        name: 'Sort',
-        path: 'sort',
+        name: 'SortSense',
+        path: '/sense/sort',
         component: () => import('#/views/sense/sort/index.vue'),
         meta: {
           title: '故障关键影响要素',
-          icon: 'ant-design:line-chart-outlined',
+          icon: 'ant-design:signal-filled',
         },
       },
     ],

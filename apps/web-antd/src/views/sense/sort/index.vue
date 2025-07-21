@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SenseSortParams } from '#/api';
 
 import { onMounted, ref, watch } from 'vue';
@@ -71,8 +70,9 @@ const doQuery = async () => {
     list = filterFirst(list);
     if (list.length > 0) {
       tableData.value = list;
+      message.success('成功请求到数据');
     } else {
-      // 无数据，post生成
+      // 数据不匹配，触发POST生成
       await createSenseSortApi(formValues);
       message.info('请求已发送，请等待几分钟再查询');
       tableData.value = [];
@@ -156,6 +156,11 @@ function handleShowDetail(field: string, row: any) {
     </div>
     <a-card title="敏感度分析排序结果" class="mt-4">
       <Grid>
+        <template #check_bezier="{ row }">
+          <span>
+            {{ row.check_bezier || '全部' }}
+          </span>
+        </template>
         <template #check_tools_sign="{ row }">
           <span
             style="cursor: pointer; color: #1677ff"
@@ -186,6 +191,14 @@ function handleShowDetail(field: string, row: any) {
             @click="handleShowDetail('extra_supplier', row)"
           >
             {{ row.extra_supplier }}
+          </span>
+        </template>
+        <template #version="{ row }">
+          <span
+            style="cursor: pointer; color: #1677ff"
+            @click="handleShowDetail('version', row)"
+          >
+            {{ row.version }}
           </span>
         </template>
       </Grid>
