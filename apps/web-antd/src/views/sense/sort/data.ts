@@ -127,11 +127,15 @@ export const querySchema: VbenFormSchema[] = [
     fieldName: 'extra_material_names',
     label: '原材料名称',
     dependencies: {
-      triggerFields: ['process_name'],
+      triggerFields: ['model', 'process_name'],
       componentProps: (values) => ({
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        dropdownStyle: {
+          minWidth: '450px', // 或者你需要的宽度
+          maxWidth: '700px',
+        },
         filterOption: (input: string, option: any) => {
           return (
             option.label?.toLowerCase().includes(input.toLowerCase()) ||
@@ -153,19 +157,24 @@ export const querySchema: VbenFormSchema[] = [
 
           // 选择了具体工序，请求后端获取原材料列表
           const res = await getDmMaterialNameByProcessApi({
+            product_model: params.model,
             process_name: params.process_name,
           });
           // 添加"全部"选项
           const options = [
             { label: '全部', value: '' },
-            ...res.map((item: string) => ({
-              label: item,
-              value: item,
-            })),
+            ...res.map((item: string) => {
+              const materialName = item.split('(')[0] || item;
+              return {
+                label: item,
+                value: materialName,
+              };
+            }),
           ];
           return options;
         },
         params: {
+          product_model: values.model,
           process_name: values.process_name,
         },
       }),
@@ -176,7 +185,7 @@ export const querySchema: VbenFormSchema[] = [
     fieldName: 'check_project',
     label: '检验区位',
     dependencies: {
-      triggerFields: ['process_name'],
+      triggerFields: ['model', 'process_name'],
       componentProps: (values) => ({
         allowClear: true,
         showSearch: true,
@@ -204,6 +213,7 @@ export const querySchema: VbenFormSchema[] = [
 
           // 选择了具体工序，请求后端获取检验区位列表
           const res = await getDmCheckProjectByProcessApi({
+            product_model: params.model,
             process_name: params.process_name,
           });
           // 添加"全部"选项
@@ -217,6 +227,7 @@ export const querySchema: VbenFormSchema[] = [
           return options;
         },
         params: {
+          model: values.model,
           process_name: values.process_name,
         },
       }),
@@ -227,7 +238,7 @@ export const querySchema: VbenFormSchema[] = [
     fieldName: 'check_bezier',
     label: '检验项点',
     dependencies: {
-      triggerFields: ['check_project'],
+      triggerFields: ['model', 'process_name', 'check_project'],
       componentProps: (values) => ({
         allowClear: true,
         showSearch: true,
@@ -254,6 +265,8 @@ export const querySchema: VbenFormSchema[] = [
 
           // 选择了具体检验区位，请求后端获取检验项点列表
           const res = await getDmCheckBezierByProjectApi({
+            product_model: params.model,
+            process_name: params.process_name,
             check_project: params.check_project,
           });
           // 添加"全部"选项
@@ -267,6 +280,8 @@ export const querySchema: VbenFormSchema[] = [
           return options;
         },
         params: {
+          model: values.model,
+          process_name: values.process_name,
           check_project: values.check_project,
         },
       }),
@@ -277,7 +292,12 @@ export const querySchema: VbenFormSchema[] = [
 // 表格 columns，全部用 slots 便于自定义渲染
 export const columns: VxeGridProps['columns'] = [
   { field: 'seq', title: '序号', type: 'seq', width: 50 },
-  { field: 'check_bezier', title: '检验项点', width: 500 },
+  {
+    field: 'check_bezier',
+    title: '检验项点',
+    width: 500,
+    slots: { default: 'check_bezier' },
+  },
   {
     field: 'rela_self_value',
     title: '自检结果',
@@ -289,7 +309,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'self_create_by',
-    title: '自检人',
+    title: '操作员工',
     slots: { default: 'self_create_by' },
   },
   {
@@ -301,5 +321,10 @@ export const columns: VxeGridProps['columns'] = [
     field: 'extra_supplier',
     title: '供应商',
     slots: { default: 'extra_supplier' },
+  },
+  {
+    field: 'version',
+    title: '版本',
+    slots: { default: 'version' },
   },
 ];
