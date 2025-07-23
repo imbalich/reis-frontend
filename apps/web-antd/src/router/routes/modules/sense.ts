@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
         path: '/sense/sort',
         component: () => import('#/views/sense/sort/index.vue'),
         meta: {
-          title: '故障关键影响要素',
+          title: '故障影响要素',
           icon: 'ant-design:signal-filled',
         },
       },

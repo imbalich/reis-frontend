@@ -164,10 +164,9 @@ export const querySchema: VbenFormSchema[] = [
           const options = [
             { label: '全部', value: '' },
             ...res.map((item: string) => {
-              const materialName = item.split('(')[0] || item;
               return {
-                label: item,
-                value: materialName,
+                label: `${item[0]}(${item[1]})`,
+                value: item[0],
               };
             }),
           ];

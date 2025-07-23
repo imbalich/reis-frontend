@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
     name: 'Fitting',
     path: '/fitting',
     meta: {
-      title: '寿命统计推断',
+      title: 'Weibull',
       icon: 'ant-design:dot-chart-outlined',
       order: 6,
     },
@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
         path: '/fitting/curve',
         component: () => import('#/views/fitting/curve/index.vue'),
         meta: {
-          title: '曲线拟合',
+          title: '寿命曲线拟合',
           icon: 'ant-design:line-chart-outlined',
         },
       },
