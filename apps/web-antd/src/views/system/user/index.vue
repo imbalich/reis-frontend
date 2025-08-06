@@ -8,6 +8,7 @@ import type {
 import type {
   SysAddUserParams,
   SysDeptTreeResult,
+  SysResetPasswordParams,
   SysRoleResult,
   SysUpdateUserParams,
   SysUserResult,
@@ -30,10 +31,12 @@ import {
   getAllSysRoleApi,
   getSysDeptTreeApi,
   getSysUserListApi,
+  resetSysUserPasswordApi,
   updateSysUserApi,
 } from '#/api';
 import {
   querySchema,
+  resetPwdSchema,
   useAddSchema,
   useColumns,
   useEditSchema,
@@ -109,7 +112,7 @@ function onRefresh() {
 function onActionClick({ code, row }: OnActionClickParams<SysUserResult>) {
   switch (code) {
     case 'delete': {
-      deleteSysUserApi(row.username).then(() => {
+      deleteSysUserApi(row.id).then(() => {
         message.success({
           content: $t('ui.actionMessage.deleteSuccess', [row.username]),
           key: 'action_process_msg',
@@ -121,6 +124,11 @@ function onActionClick({ code, row }: OnActionClickParams<SysUserResult>) {
     case 'edit': {
       editUser.value = row.id;
       editModalApi.setData(row).open();
+      break;
+    }
+    case 'more': {
+      editUser.value = row.id;
+      resetPwdModalApi.setData(null).open();
       break;
     }
   }
@@ -212,6 +220,40 @@ const [addModal, addModalApi] = useVbenModal({
   },
 });
 
+const [ResetPwdForm, resetPwdFormApi] = useVbenForm({
+  layout: 'vertical',
+  showDefaultActions: false,
+  schema: resetPwdSchema,
+});
+
+const [resetPwdModal, resetPwdModalApi] = useVbenModal({
+  destroyOnClose: true,
+  centered: true,
+  async onConfirm() {
+    const { valid } = await resetPwdFormApi.validate();
+    if (valid) {
+      resetPwdModalApi.lock();
+      const data = await resetPwdFormApi.getValues<SysResetPasswordParams>();
+      try {
+        await resetSysUserPasswordApi(editUser.value, data);
+        message.success($t('ui.actionMessage.operationSuccess'));
+        await resetPwdModalApi.close();
+      } finally {
+        resetPwdModalApi.unlock();
+      }
+    }
+  },
+  onOpenChange(isOpen) {
+    if (isOpen) {
+      const data = resetPwdModalApi.getData();
+      resetPwdFormApi.resetForm();
+      if (data) {
+        resetPwdFormApi.setValues(data);
+      }
+    }
+  },
+});
+
 onMounted(() => {
   fetchDeptTree(undefined);
   fetchAllSysRole();
@@ -283,7 +325,7 @@ onMounted(() => {
       <template #roles="{ row }">
         <span v-if="row.roles.length === 1">
           <a-tag color="purple">
-            {{ row.roles[0].name }}
+            {{ row.roles[0]?.name }}
           </a-tag>
         </span>
         <span v-else-if="row.roles.length > 1">
@@ -307,5 +349,8 @@ onMounted(() => {
     <addModal title="添加用户">
       <AddForm />
     </addModal>
+    <resetPwdModal title="重置密码">
+      <ResetPwdForm />
+    </resetPwdModal>
   </ColPage>
 </template>

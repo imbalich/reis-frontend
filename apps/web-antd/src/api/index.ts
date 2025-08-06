@@ -1,4 +1,5 @@
 export * from './core';
+export * from './data-permission';
 export * from './dept';
 export * from './despatch';
 export * from './ebom';
@@ -7,8 +8,10 @@ export * from './fitting';
 export * from './log';
 export * from './monitor';
 export * from './opt';
+export * from './plugin';
 export * from './product';
 export * from './repair';
 export * from './replace';
 export * from './role';
+export * from './scheduler';
 export * from './sense';

@@ -7,7 +7,7 @@ import { requestClient } from '#/api/request';
 export interface MyUserInfo extends UserInfo {
   id: number;
   nickname: string;
-  email: string;
+  email?: string;
   phone?: string;
   dept?: string;
   last_login_time: string;
@@ -19,7 +19,7 @@ export interface SysUserResult {
   dept_id?: number;
   username: string;
   nickname: string;
-  email: string;
+  email?: string;
   phone?: string;
   avatar?: string;
   status: number;
@@ -46,24 +46,41 @@ export interface SysUpdateUserParams {
   username: string;
   nickname: string;
   avatar?: string;
-  email: string;
+  email?: string;
   phone?: string;
   roles: number[];
 }
 
-export interface SysAddUserParams {
-  dept_id?: number;
-  username: string;
-  nickname: string;
+export interface SysAddUserParams extends SysUpdateUserParams {
   password: string;
-  email: string;
-  roles: number[];
 }
 
-export interface SysResetPasswordParams {
+export interface SysUpdatePasswordParams {
   old_password: string;
   new_password: string;
   confirm_password: string;
+}
+
+export interface SysUpdateUserPhoneParams {
+  phone: string;
+  captcha: string;
+}
+
+export interface SysUpdateUserEmailParams {
+  email: string;
+  captcha: string;
+}
+
+export interface SysUpdateUserNicknameParams {
+  nickname: string;
+}
+
+export interface SysUpdateUserAvatarParams {
+  avatar: string;
+}
+
+export interface SysResetPasswordParams {
+  password: string;
 }
 
 /**
@@ -92,13 +109,34 @@ export async function updateSysUserPermissionApi(pk: number, type: string) {
   });
 }
 
-export async function updateSysUserPasswordApi(
+export async function updateSysUserAvatarApi(data: SysUpdateUserAvatarParams) {
+  return requestClient.put(`/api/v1/sys/users/me/avatar`, data);
+}
+
+export async function updateSysUserNicknameApi(
+  data: SysUpdateUserNicknameParams,
+) {
+  return requestClient.put(`/api/v1/sys/users/me/nickname`, data);
+}
+export async function updateSysUserPhoneApi(data: SysUpdateUserPhoneParams) {
+  return requestClient.put(`/api/v1/sys/users/me/phones`, data);
+}
+
+export async function updateSysUserEmailApi(data: SysUpdateUserEmailParams) {
+  return requestClient.put(`/api/v1/sys/users/me/emails`, data);
+}
+
+export async function updateSysUserPasswordApi(data: SysUpdatePasswordParams) {
+  return requestClient.put(`/api/v1/sys/users/me/password`, data);
+}
+
+export async function resetSysUserPasswordApi(
   pk: number,
   data: SysResetPasswordParams,
 ) {
   return requestClient.put(`/api/v1/sys/users/${pk}/password`, data);
 }
 
-export async function deleteSysUserApi(username: string) {
-  return requestClient.delete(`/api/v1/sys/users/${username}`);
+export async function deleteSysUserApi(pk: number) {
+  return requestClient.delete(`/api/v1/sys/users/${pk}`);
 }
