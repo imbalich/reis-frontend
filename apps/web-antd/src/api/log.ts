@@ -35,6 +35,9 @@ export interface OperaLogResult {
   path: string;
   ip: string;
   country?: string;
+  region?: string;
+  city?: string;
+  user_agent: string;
   os?: string;
   browser?: string;
   device?: string;
@@ -47,7 +50,10 @@ export interface OperaLogResult {
 }
 
 export async function getLoginLogListApi(params: LoginLogParams) {
-  return requestClient.get<PaginationResult>('/api/v1/logs/login', { params });
+  return requestClient.get<PaginationResult<LoginLogResult>>(
+    '/api/v1/logs/login',
+    { params },
+  );
 }
 
 export async function deleteLoginLogApi(pks: number[]) {
@@ -55,7 +61,10 @@ export async function deleteLoginLogApi(pks: number[]) {
 }
 
 export async function getOperaLogListApi(params: OperaLogParams) {
-  return requestClient.get<PaginationResult>('/api/v1/logs/opera', { params });
+  return requestClient.get<PaginationResult<OperaLogResult>>(
+    '/api/v1/logs/opera',
+    { params },
+  );
 }
 
 export async function deleteOperaLogApi(pks: number[]) {
