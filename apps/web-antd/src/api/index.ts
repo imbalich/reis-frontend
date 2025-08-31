@@ -10,6 +10,7 @@ export * from './monitor';
 export * from './opt';
 export * from './plugin';
 export * from './product';
+export * from './rbd';
 export * from './repair';
 export * from './replace';
 export * from './role';
