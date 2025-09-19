@@ -1,7 +1,10 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeGridProps } from '#/adapter/vxe-table';
-import type { SysDataScopeResult } from '#/api';
+import type { SysNoticeResult } from '#/plugins/notice/api';
 
+import { h } from 'vue';
+
+import { MarkdownEditor } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { DictEnum, getDictOptions } from '#/utils/dict';
@@ -9,8 +12,8 @@ import { DictEnum, getDictOptions } from '#/utils/dict';
 export const querySchema: VbenFormSchema[] = [
   {
     component: 'Input',
-    fieldName: 'name',
-    label: '数据范围名称',
+    fieldName: 'title',
+    label: '标题',
   },
   {
     component: 'Select',
@@ -18,11 +21,30 @@ export const querySchema: VbenFormSchema[] = [
       allowClear: true,
       // options: [
       //   {
-      //     label: '正常',
+      //     label: '通知',
+      //     value: 0,
+      //   },
+      //   {
+      //     label: '公告',
+      //     value: 1,
+      //   },
+      // ],
+      options: getDictOptions(DictEnum.NOTICE),
+    },
+    fieldName: 'type',
+    label: '类型',
+  },
+  {
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      // options: [
+      //   {
+      //     label: '已启用',
       //     value: 1,
       //   },
       //   {
-      //     label: '停用',
+      //     label: '已停用',
       //     value: 0,
       //   },
       // ],
@@ -34,7 +56,7 @@ export const querySchema: VbenFormSchema[] = [
 ];
 
 export function useColumns(
-  onActionClick?: OnActionClickFn<SysDataScopeResult>,
+  onActionClick?: OnActionClickFn<SysNoticeResult>,
 ): VxeGridProps['columns'] {
   return [
     {
@@ -43,14 +65,26 @@ export function useColumns(
       type: 'seq',
       width: 50,
     },
-    { field: 'name', title: '范围名称' },
+    { field: 'title', title: '标题' },
+    {
+      field: 'type',
+      title: '类型',
+      cellRender: {
+        name: 'CellTag',
+        // options: [
+        //   { color: 'success', label: '通知', value: 0 },
+        //   { color: 'warning', label: '公告', value: 1 },
+        // ],
+
+        options: getDictOptions(DictEnum.NOTICE),
+      },
+    },
     {
       field: 'status',
       title: '状态',
       cellRender: {
         name: 'CellTag',
       },
-      width: 100,
     },
     {
       field: 'created_time',
@@ -58,26 +92,20 @@ export function useColumns(
       width: 168,
     },
     {
-      field: 'updated_time',
-      title: $t('common.table.updated_time'),
-      width: 168,
-    },
-    {
       field: 'operation',
       title: $t('common.table.operation'),
       align: 'center',
       fixed: 'right',
-      width: 200,
+      width: 150,
       cellRender: {
         attrs: {
-          nameField: 'name',
           onClick: onActionClick,
         },
         name: 'CellOperation',
         options: [
           {
-            code: 'rule',
-            text: '规则设置',
+            code: 'preview',
+            text: '预览',
           },
           'edit',
           'delete',
@@ -90,8 +118,27 @@ export function useColumns(
 export const schema: VbenFormSchema[] = [
   {
     component: 'Input',
-    fieldName: 'name',
-    label: '数据范围名称',
+    formItemClass: 'md:col-span-2',
+    fieldName: 'title',
+    label: '标题',
+    rules: 'required',
+  },
+  {
+    component: 'RadioGroup',
+    formItemClass: 'col-span-1 md:col-span-1',
+    componentProps: {
+      buttonStyle: 'solid',
+      // options: [
+      //   { label: '通知', value: 0 },
+      //   { label: '公告', value: 1 },
+      // ],
+
+      options: getDictOptions(DictEnum.NOTICE),
+      optionType: 'button',
+    },
+    defaultValue: 0,
+    fieldName: 'type',
+    label: '类型',
     rules: 'required',
   },
   {
@@ -110,12 +157,15 @@ export const schema: VbenFormSchema[] = [
     label: '状态',
     rules: 'required',
   },
-];
-
-export const drawerColumns: VxeGridProps['columns'] = [
   {
-    type: 'checkbox',
-    title: '规则名称',
-    align: 'left',
+    component: h(MarkdownEditor),
+    modelPropName: 'value',
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'md:col-span-2',
+    fieldName: 'content',
+    label: '内容',
+    rules: 'required',
   },
 ];

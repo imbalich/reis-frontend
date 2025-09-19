@@ -1,8 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 
-import { $t } from '@vben/locales';
-
 import { z } from '#/adapter/form';
+import { DictEnum, getDictOptions } from '#/utils/dict';
 
 export const emailSchema: VbenFormSchema[] = [
   {
@@ -39,7 +38,7 @@ export const emailSchema: VbenFormSchema[] = [
     rules: z.string().email({ message: '无效的邮箱地址' }),
   },
   {
-    component: 'Input',
+    component: 'InputPassword',
     fieldName: 'EMAIL_PASSWORD',
     label: '邮箱密码',
     help: '服务授权密码/客户端专用密码',
@@ -48,10 +47,11 @@ export const emailSchema: VbenFormSchema[] = [
   {
     component: 'RadioGroup',
     componentProps: {
-      options: [
-        { label: $t('common.enabled'), value: '1' },
-        { label: $t('common.disabled'), value: '0' },
-      ],
+      // options: [
+      //   { label: $t('common.enabled'), value: '1' },
+      //   { label: $t('common.disabled'), value: '0' },
+      // ],
+      options: getDictOptions(DictEnum.SYS_STATUS, { asString: true }),
       optionType: 'button',
     },
     defaultValue: '1',
@@ -63,10 +63,11 @@ export const emailSchema: VbenFormSchema[] = [
   {
     component: 'RadioGroup',
     componentProps: {
-      options: [
-        { label: $t('common.enabled'), value: '1' },
-        { label: $t('common.disabled'), value: '0' },
-      ],
+      // options: [
+      //   { label: $t('common.enabled'), value: '1' },
+      //   { label: $t('common.disabled'), value: '0' },
+      // ],
+      options: getDictOptions(DictEnum.SYS_STATUS, { asString: true }),
       optionType: 'button',
     },
     defaultValue: '0',

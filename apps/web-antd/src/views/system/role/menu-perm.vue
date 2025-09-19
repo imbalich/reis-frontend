@@ -26,7 +26,7 @@ import {
   drawerDataScopeColumns,
   drawerQuerySchema,
 } from './data';
-import ExtraDataRuleDrawer from './data-rule-drawer.vue';
+import ExtraDataRuleDrawer from './data-perm.vue';
 
 const activeKey = ref('0');
 const clickRow = ref<number>(0);
@@ -71,21 +71,6 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
 });
 
-const processTreeData = (nodes: any[]) => {
-  return nodes.map((node) => {
-    const processedNode = {
-      ...node,
-      title: $t(node.title),
-    };
-
-    if (node.children && node.children.length > 0) {
-      processedNode.children = processTreeData(node.children);
-    }
-
-    return processedNode;
-  });
-};
-
 /**
  * 菜单权限
  */
@@ -128,8 +113,7 @@ const gridOptions: VxeTableGridOptions<SysMenuTreeResult> = {
   proxyConfig: {
     ajax: {
       query: async (_, formValues) => {
-        const res = await getSysMenuTreeApi(formValues);
-        return processTreeData(res);
+        return await getSysMenuTreeApi(formValues);
       },
     },
   },

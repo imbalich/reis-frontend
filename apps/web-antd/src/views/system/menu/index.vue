@@ -103,7 +103,7 @@ function onActionClick({ code, row }: OnActionClickParams<SysMenuTreeResult>) {
 }
 
 const [Form, formApi] = useVbenForm({
-  wrapperClass: 'grid-cols-1 md:grid-cols-2',
+  wrapperClass: 'md:grid-cols-2',
   showDefaultActions: false,
   schema,
 });
@@ -135,6 +135,7 @@ const [Modal, modalApi] = useVbenModal({
         await (formData.value?.id
           ? updateSysMenuApi(formData.value.id, data)
           : createSysMenuApi(data));
+        message.success($t('ui.actionMessage.operationSuccess'));
         await modalApi.close();
         onRefresh();
       } finally {
@@ -192,7 +193,7 @@ const [Modal, modalApi] = useVbenModal({
               class="size-full"
             />
           </div>
-          <span class="ml-1 flex-auto">{{ $t(row.title) }}</span>
+          <span class="ml-1 flex-auto">{{ row.title }}</span>
         </div>
       </template>
     </Grid>

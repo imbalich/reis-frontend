@@ -3,44 +3,54 @@ import type { VbenFormProps } from '@vben/common-ui';
 
 import type {
   OnActionClickParams,
+  VxeGridListeners,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { CreateSysRoleParams, SysRoleResult } from '#/api';
+import type {
+  CreateDictTypeParams,
+  DictDataResult,
+  DictTypeResult,
+} from '#/plugins/dict/api';
 
 import { computed, ref } from 'vue';
 
-import { Page, useVbenDrawer, useVbenModal, VbenButton } from '@vben/common-ui';
+import { useVbenModal, VbenButton } from '@vben/common-ui';
 import { MaterialSymbolsAdd } from '@vben/icons';
 import { $t } from '@vben/locales';
-import { traverseTreeValues } from '@vben/utils';
 
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  createSysRoleApi,
-  deleteSysRoleApi,
-  getSysRoleListApi,
-  getSysRoleMenuApi,
-  updateSysRoleApi,
-} from '#/api';
+  createDictTypeApi,
+  deleteDictTypeApi,
+  getDictTypeListApi,
+  updateDictTypeApi,
+} from '#/plugins/dict/api';
+import { emitter } from '#/plugins/dict/views/mitt';
 
-import { querySchema, schema, useColumns } from './data';
-import ExtraDrawer from './menu-perm.vue';
+import {
+  dictTypeSchema,
+  queryDictTypeSchema,
+  useDictTypeColumns,
+} from './data';
 
 const formOptions: VbenFormProps = {
+  wrapperClass: 'md:grid-cols-2',
   collapsed: true,
   showCollapseButton: true,
   submitButtonOptions: {
     content: $t('common.form.query'),
   },
-  schema: querySchema,
+  schema: queryDictTypeSchema,
 };
 
-const gridOptions: VxeTableGridOptions<SysRoleResult> = {
+const gridOptions: VxeTableGridOptions<DictTypeResult> = {
   rowConfig: {
     keyField: 'id',
+    isCurrent: true,
+    isHover: true,
   },
   checkboxConfig: {
     highlight: true,
@@ -55,11 +65,11 @@ const gridOptions: VxeTableGridOptions<SysRoleResult> = {
     custom: true,
     zoom: true,
   },
-  columns: useColumns(onActionClick),
+  columns: useDictTypeColumns(onActionClick),
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        return await getSysRoleListApi({
+        return await getDictTypeListApi({
           page: page.currentPage,
           size: page.pageSize,
           ...formValues,
@@ -68,17 +78,27 @@ const gridOptions: VxeTableGridOptions<SysRoleResult> = {
     },
   },
 };
+const lastDictTypeId = ref<number>(0);
+const gridEvents: VxeGridListeners<DictDataResult> = {
+  cellClick: ({ row }) => {
+    if (lastDictTypeId.value === row.id) {
+      return;
+    }
+    emitter.emit('rowClick', row.id);
+    lastDictTypeId.value = row.id;
+  },
+};
 
-const [Grid, girdApi] = useVbenVxeGrid({ formOptions, gridOptions });
+const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions,
+  gridOptions,
+  gridEvents,
+});
 
-function onRefresh() {
-  girdApi.query();
-}
-
-function onActionClick({ code, row }: OnActionClickParams<SysRoleResult>) {
+function onActionClick({ code, row }: OnActionClickParams<DictTypeResult>) {
   switch (code) {
     case 'delete': {
-      deleteSysRoleApi([row.id]).then(() => {
+      deleteDictTypeApi([row.id]).then(() => {
         message.success({
           content: $t('ui.actionMessage.deleteSuccess', [row.name]),
           key: 'action_process_msg',
@@ -91,29 +111,29 @@ function onActionClick({ code, row }: OnActionClickParams<SysRoleResult>) {
       modalApi.setData(row).open();
       break;
     }
-    case 'perm': {
-      openDrawer(row.id);
-      break;
-    }
   }
+}
+
+function onRefresh() {
+  gridApi.query();
 }
 
 const [Form, formApi] = useVbenForm({
   layout: 'vertical',
   showDefaultActions: false,
-  schema,
+  schema: dictTypeSchema,
 });
 
-interface formSysRoleParams extends CreateSysRoleParams {
+interface formDictTypeParams extends CreateDictTypeParams {
   id?: number;
 }
 
-const formData = ref<formSysRoleParams>();
+const formData = ref<formDictTypeParams>();
 
 const modalTitle = computed(() => {
   return formData.value?.id
-    ? $t('ui.actionTitle.edit', ['角色'])
-    : $t('ui.actionTitle.create', ['角色']);
+    ? $t('ui.actionTitle.edit', ['字典类型'])
+    : $t('ui.actionTitle.create', ['字典类型']);
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -122,11 +142,11 @@ const [Modal, modalApi] = useVbenModal({
     const { valid } = await formApi.validate();
     if (valid) {
       modalApi.lock();
-      const data = await formApi.getValues<CreateSysRoleParams>();
+      const data = await formApi.getValues<CreateDictTypeParams>();
       try {
         await (formData.value?.id
-          ? updateSysRoleApi(formData.value?.id, data)
-          : createSysRoleApi(data));
+          ? updateDictTypeApi(formData.value?.id, data)
+          : createDictTypeApi(data));
         message.success($t('ui.actionMessage.operationSuccess'));
         await modalApi.close();
         onRefresh();
@@ -137,7 +157,7 @@ const [Modal, modalApi] = useVbenModal({
   },
   onOpenChange(isOpen) {
     if (isOpen) {
-      const data = modalApi.getData<formSysRoleParams>();
+      const data = modalApi.getData<formDictTypeParams>();
       formApi.resetForm();
       if (data) {
         formData.value = data;
@@ -146,39 +166,18 @@ const [Modal, modalApi] = useVbenModal({
     }
   },
 });
-
-const [Drawer, drawerApi] = useVbenDrawer({
-  connectedComponent: ExtraDrawer,
-});
-
-const openDrawer = async (pk: number) => {
-  try {
-    const roleMenu = await getSysRoleMenuApi(pk);
-    drawerApi
-      .setData({
-        pk,
-        checkedRoleMenu: traverseTreeValues(roleMenu, (item: any) => item.id),
-      })
-      .open();
-  } catch (error) {
-    console.error(error);
-  }
-};
 </script>
 
 <template>
-  <Page auto-content-height>
-    <Grid>
-      <template #toolbar-actions>
-        <VbenButton @click="() => modalApi.setData(null).open()">
-          <MaterialSymbolsAdd class="size-5" />
-          新增角色
-        </VbenButton>
-      </template>
-    </Grid>
-    <Modal :title="modalTitle">
-      <Form />
-    </Modal>
-    <Drawer />
-  </Page>
+  <Grid table-title="字典类型">
+    <template #toolbar-tools>
+      <VbenButton @click="() => modalApi.setData(null).open()">
+        <MaterialSymbolsAdd class="size-5" />
+        新增
+      </VbenButton>
+    </template>
+  </Grid>
+  <Modal :title="modalTitle">
+    <Form />
+  </Modal>
 </template>
