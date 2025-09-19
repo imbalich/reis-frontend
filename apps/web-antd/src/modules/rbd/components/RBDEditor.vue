@@ -614,29 +614,62 @@ const calculateRAM = () => {
       <a-layout>
         <!-- 左侧组件面板 -->
         <a-layout-sider width="280" style="background: #fff">
-          <NodePalette :graph-data="graphData" @clear-canvas="clearCanvas" @auto-layout="autoLayout"
-            @center-view="centerView" @reset-zoom="resetZoom" @show-mini-map="showMiniMap" @hide-mini-map="hideMiniMap"
-            @reset-mini-map="resetMiniMap" @refresh-mini-map="refreshMiniMap" />
+          <NodePalette
+            :graph-data="graphData"
+            @clear-canvas="clearCanvas"
+            @auto-layout="autoLayout"
+            @center-view="centerView"
+            @reset-zoom="resetZoom"
+            @show-mini-map="showMiniMap"
+            @hide-mini-map="hideMiniMap"
+            @reset-mini-map="resetMiniMap"
+            @refresh-mini-map="refreshMiniMap"
+          />
         </a-layout-sider>
 
         <!-- 中间画布区域 -->
         <a-layout-content style="padding: 16px">
-          <div ref="canvasWrapperRef" class="canvas-wrapper" @drop="onDrop" @dragover="onDragOver">
-            <LogicFlowEditor ref="logicFlowRef" :graph-data="graphData" :width="canvasWidth" :height="canvasHeight"
-              @node-click="onNodeClick" @node-add="onNodeAdd" @node-delete="onNodeDelete" @node-move="onNodeMove"
-              @edge-add="onEdgeAdd" @edge-delete="onEdgeDelete" @graph-change="onGraphChange" />
+          <div
+            ref="canvasWrapperRef"
+            class="canvas-wrapper"
+            @drop="onDrop"
+            @dragover="onDragOver"
+          >
+            <LogicFlowEditor
+              ref="logicFlowRef"
+              :graph-data="graphData"
+              :width="canvasWidth"
+              :height="canvasHeight"
+              @node-click="onNodeClick"
+              @node-add="onNodeAdd"
+              @node-delete="onNodeDelete"
+              @node-move="onNodeMove"
+              @edge-add="onEdgeAdd"
+              @edge-delete="onEdgeDelete"
+              @graph-change="onGraphChange"
+            />
           </div>
         </a-layout-content>
 
         <!-- 右侧面板 -->
         <a-layout-sider width="320" style="background: #fff">
-          <a-tabs v-model:active-key="activeTab" type="card" style="height: 100%; padding: 8px">
+          <a-tabs
+            v-model:active-key="activeTab"
+            type="card"
+            style="height: 100%; padding: 8px"
+          >
             <a-tab-pane key="nodeProps" tab="节点属性" class="rbd-tab-pane">
-              <PropertyPanel :selected-node="selectedNode" @node-properties-update="onNodePropertiesUpdate" />
+              <PropertyPanel
+                :selected-node="selectedNode"
+                @node-properties-update="onNodePropertiesUpdate"
+              />
             </a-tab-pane>
             <a-tab-pane key="projectCalc" tab="项目计算" class="rbd-tab-pane">
-              <ProjectCalculationPanel :project-config="projectConfig" :graph-data="graphData"
-                @config-update="onProjectConfigUpdate" />
+              <ProjectCalculationPanel
+                :project-config="projectConfig"
+                :graph-data="graphData"
+                @config-update="onProjectConfigUpdate"
+              />
             </a-tab-pane>
           </a-tabs>
         </a-layout-sider>
@@ -644,8 +677,11 @@ const calculateRAM = () => {
     </a-layout>
 
     <!-- RBD分析面板 -->
-    <AnalysisPanel :visible="analysisPanelVisible" :analysis-result="analysisResult"
-      @close="analysisPanelVisible = false" />
+    <AnalysisPanel
+      :visible="analysisPanelVisible"
+      :analysis-result="analysisResult"
+      @close="analysisPanelVisible = false"
+    />
   </div>
 </template>
 

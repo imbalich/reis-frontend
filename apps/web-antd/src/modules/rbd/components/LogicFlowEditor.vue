@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
   height: 600,
 });
 
-// Events  
+// Events
 const emit = defineEmits<{
   'connection-warning': [
     warning: { edgeId: string; message: string; type: string },
