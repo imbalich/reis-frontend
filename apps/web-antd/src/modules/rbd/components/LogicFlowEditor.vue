@@ -91,6 +91,15 @@ const initLogicFlow = () => {
   const containerWidth = Math.floor(containerRect.width);
   const containerHeight = Math.floor(containerRect.height);
 
+  // 检查容器尺寸是否有效
+  if (containerWidth <= 0 || containerHeight <= 0) {
+    // 延迟重试，不输出日志避免控制台污染
+    setTimeout(() => {
+      initLogicFlow();
+    }, 100);
+    return;
+  }
+
   // 使用容器实际尺寸，但不超过props传入的尺寸
   const finalWidth = Math.min(containerWidth, props.width);
   const finalHeight = Math.min(containerHeight, props.height);
@@ -101,6 +110,8 @@ const initLogicFlow = () => {
     container: containerRef.value,
     width: finalWidth,
     height: finalHeight,
+    // 启用历史记录功能（撤销/重做）
+    history: true,
     // 注册插件
     plugins: [MiniMap, Control],
     // 插件配置 - 重新启用边线显示
@@ -116,7 +127,8 @@ const initLogicFlow = () => {
         bottomPosition: 10,
       },
       Control: {
-        // 确保控制面板功能正常
+        // 使用默认配置，确保插件正常工作
+        position: 'top-left',
       },
     },
     grid: {
@@ -213,6 +225,11 @@ const initLogicFlow = () => {
   lf.render({});
   // LogicFlow画布渲染完成
 
+  // 确保Control插件正确初始化
+  if (!lf.extension.control) {
+    console.warn('Control插件初始化失败');
+  }
+
   // 延迟设置LogicFlow内置复制粘贴功能，确保实例完全初始化
   setTimeout(() => {
     if (lf) {
@@ -270,9 +287,7 @@ const registerEventListeners = () => {
 
   // 节点点击事件
   lf.on('node:click', ({ data }: any) => {
-    console.log('节点点击事件触发:', data);
     const node = convertToRBDNode(data);
-    console.log('转换后的节点数据:', node);
     emit('nodeClick', node);
 
     // 确保容器获得焦点，以便接收键盘事件
@@ -463,7 +478,7 @@ const addNode = (nodeType: string, x: number, y: number) => {
         text: '结束',
         properties: {
           nodeType: 'end',
-          name: '结束节点',
+          name: '结束',
           style: {
             fill: '#ff4d4f',
             stroke: '#cf1322',
@@ -556,7 +571,7 @@ const addNode = (nodeType: string, x: number, y: number) => {
         text: '开始',
         properties: {
           nodeType: 'start',
-          name: '开始节点',
+          name: '开始',
           style: {
             fill: '#52c41a',
             stroke: '#389e0d',
@@ -630,7 +645,10 @@ let resizeObserver: null | ResizeObserver = null;
 onMounted(() => {
   // 延迟初始化，确保DOM已完全渲染
   nextTick(() => {
-    initLogicFlow();
+    // 再次延迟，确保容器完全准备好
+    setTimeout(() => {
+      initLogicFlow();
+    }, 50);
 
     // 移除重复的setupKeyboardHandlers调用
 
@@ -883,7 +901,7 @@ const showMiniMap = () => {
     // 启用边线显示
     miniMapExtension.setShowEdge(true);
 
-    console.log('小地图已显示（节点和连线都显示）');
+    // 小地图已显示
   } catch (error) {
     console.error('显示小地图失败:', error);
   }
@@ -898,7 +916,7 @@ const hideMiniMap = () => {
   const miniMapExtension = lf.extension.miniMap as any;
   try {
     miniMapExtension.hide();
-    console.log('小地图已隐藏');
+    // 小地图已隐藏
   } catch (error) {
     console.error('隐藏小地图失败:', error);
   }
@@ -914,7 +932,7 @@ const resetMiniMap = () => {
   const miniMapExtension = lf.extension.miniMap as any;
   try {
     miniMapExtension.reset();
-    console.log('小地图已重置');
+    // 小地图已重置
   } catch (error) {
     console.error('重置小地图失败:', error);
   }
@@ -1012,7 +1030,7 @@ const updateNodeText = (nodeId: string, _nodeType: string, properties: any) => {
 // 加载图形数据到LogicFlow
 const loadGraphData = (graphData: RBDGraphData) => {
   if (!lf) {
-    console.warn('LogicFlow实例不存在，无法加载数据');
+    // LogicFlow实例不存在，静默返回
     return;
   }
 
@@ -1150,7 +1168,7 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
 
   // 监听复制事件
   lf.on('copy', (data: any) => {
-    console.log('LogicFlow复制事件:', data);
+    // LogicFlow复制事件
 
     // 过滤掉开始/结束节点
     if (data.nodes && data.nodes.length > 0) {
@@ -1158,7 +1176,7 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
       const nodeType = node.properties?.nodeType;
 
       if (nodeType === 'start' || nodeType === 'end') {
-        console.log('控制节点不能复制:', nodeType);
+        // 控制节点不能复制
         // 阻止复制
         return false;
       }
@@ -1169,7 +1187,7 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
 
   // 监听粘贴事件
   lf.on('paste', (data: any) => {
-    console.log('LogicFlow粘贴事件:', data);
+    // LogicFlow粘贴事件
 
     // 处理粘贴的节点 - 简化处理，避免重复创建
     if (data.nodes && data.nodes.length > 0) {
@@ -1192,7 +1210,7 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
 
   // 监听删除事件
   lf.on('delete', (data: any) => {
-    console.log('LogicFlow删除事件:', data);
+    // LogicFlow删除事件
 
     // 过滤掉开始/结束节点
     if (data.nodes && data.nodes.length > 0) {
@@ -1202,7 +1220,7 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
       });
 
       if (filteredNodes.length !== data.nodes.length) {
-        console.log('过滤掉控制节点，只删除普通节点');
+        // 过滤掉控制节点，只删除普通节点
         return { ...data, nodes: filteredNodes };
       }
     }
@@ -1216,9 +1234,6 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
     // 检查是否有setCopyPaste方法
     if (typeof lf.setCopyPaste === 'function') {
       lf.setCopyPaste(true);
-      console.log('使用setCopyPaste方法启用复制粘贴');
-    } else {
-      console.log('LogicFlow 2.x通过配置启用复制粘贴功能');
     }
   } catch (error) {
     console.warn('启用复制粘贴功能失败:', error);
@@ -1231,28 +1246,21 @@ const setupLogicFlowCopyPaste = (lf: LogicFlow) => {
 const handleKeyDown = (e: KeyboardEvent) => {
   // 检查LogicFlow实例是否存在
   if (!lf) {
-    console.log('LogicFlow实例不存在，忽略键盘事件');
+    // LogicFlow实例不存在，忽略键盘事件
     return;
   }
 
-  console.log(
-    '键盘事件触发:',
-    e.key,
-    'Ctrl:',
-    e.ctrlKey,
-    '目标元素:',
-    e.target,
-  );
+  // 键盘事件处理
 
   // 处理复制操作 (Ctrl+C)
   if (e.ctrlKey && e.key === 'c') {
     e.preventDefault();
-    console.log('Ctrl+C 复制操作');
+    // Ctrl+C 复制操作
 
     const selectedElements = lf.getSelectElements
       ? lf.getSelectElements()
       : { nodes: [], edges: [] };
-    console.log('复制操作 - 选中元素:', selectedElements);
+    // 复制操作 - 获取选中元素
 
     if (selectedElements.nodes && selectedElements.nodes.length > 0) {
       const node = selectedElements.nodes[0];
@@ -1260,16 +1268,16 @@ const handleKeyDown = (e: KeyboardEvent) => {
         const nodeType = node.properties?.nodeType;
 
         if (nodeType === 'start' || nodeType === 'end') {
-          console.log('控制节点不能复制:', nodeType);
+          // 控制节点不能复制
           return;
         }
 
         // 存储复制的节点数据
         window.copiedNodeData = JSON.parse(JSON.stringify(node));
-        console.log('节点已复制:', window.copiedNodeData);
+        // 节点已复制
       }
     } else {
-      console.log('没有选中的节点');
+      // 没有选中的节点
     }
     return;
   }
@@ -1281,7 +1289,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     // Ctrl+V 粘贴操作 - 开始处理
 
     if (window.copiedNodeData) {
-      console.log('找到复制的节点数据:', window.copiedNodeData);
+      // 找到复制的节点数据
 
       // 创建新的节点ID
       const newNodeId = `${window.copiedNodeData.properties?.nodeType || 'node'}_${Date.now()}`;
@@ -1295,13 +1303,13 @@ const handleKeyDown = (e: KeyboardEvent) => {
         y: window.copiedNodeData.y + offset,
       };
 
-      console.log('准备粘贴节点:', newNodeData);
+      // 准备粘贴节点
 
       // 添加新节点
       if (lf) {
         try {
           lf.addNode(newNodeData);
-          console.log('节点添加成功:', newNodeId);
+          // 节点添加成功
 
           // 更新节点显示文本
           setTimeout(() => {
@@ -1314,7 +1322,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
                 )
               ) {
                 nodeModel.updateText('');
-                console.log('节点文本已更新');
+                // 节点文本已更新
               }
             }
           }, 100);
@@ -1325,7 +1333,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
         console.error('LogicFlow实例不存在，无法添加节点');
       }
     } else {
-      console.log('没有可粘贴的节点数据');
+      // 没有可粘贴的节点数据
     }
     return;
   }
@@ -1333,13 +1341,13 @@ const handleKeyDown = (e: KeyboardEvent) => {
   // 处理删除操作 (Delete)
   if (e.key === 'Delete') {
     e.preventDefault();
-    console.log('Delete 删除操作');
+    // Delete 删除操作
 
     // 获取选中的元素
     const selectedElements = lf.getSelectElements
       ? lf.getSelectElements()
       : { nodes: [], edges: [] };
-    console.log('删除操作 - 选中元素:', selectedElements);
+    // 删除操作 - 获取选中元素
 
     if (selectedElements.nodes && selectedElements.nodes.length > 0) {
       const nodesToDelete = selectedElements.nodes.filter((node: any) => {
@@ -1348,7 +1356,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
       });
 
       if (nodesToDelete.length > 0) {
-        console.log('删除节点:', nodesToDelete);
+        // 删除节点
         if (lf) {
           nodesToDelete.forEach((node: any) => {
             // 使用LogicFlow的删除方法
@@ -1360,10 +1368,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
           });
         }
       } else {
-        console.log('没有可删除的节点（控制节点不能删除）');
+        // 没有可删除的节点（控制节点不能删除）
       }
     } else {
-      console.log('没有选中的节点');
+      // 没有选中的节点
     }
   }
 };

@@ -28,8 +28,6 @@ export function getLogicFlowType(nodeType: string): string {
 
 // 设置RBD节点样式 - 使用setTheme方法（官方推荐）
 export function setupRBDTheme(lf: LogicFlow) {
-  console.log('设置RBD节点主题样式...');
-
   // 使用官方推荐的setTheme方法
   lf.setTheme({
     // 圆形节点基础样式（开始、结束、K/N节点）
@@ -68,8 +66,6 @@ export function setupRBDTheme(lf: LogicFlow) {
       strokeWidth: 1,
     },
   });
-
-  console.log('RBD主题样式设置完成');
 }
 
 // 串联节点模型 - 动态计算显示文本
@@ -220,6 +216,4 @@ export function registerRBDNodes(lf: LogicFlow) {
     view: CircleNode,
     model: KNNodeModel,
   });
-
-  console.log('RBD节点类型和连接规则注册完成（包含动态文本支持）');
 }

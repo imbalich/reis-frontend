@@ -64,6 +64,35 @@ const routes: RouteRecordRaw[] = [
           icon: 'material-symbols:table-view',
         },
       },
+      {
+        name: 'WarehouseDm',
+        path: '/datamanage/warehouse',
+        component: () => import('#/views/datamanage/warehouse/index.vue'),
+        meta: {
+          title: '仓库数据管理',
+          icon: 'material-symbols:table-view',
+        },
+      },
+      {
+        name: 'WarehouseInventoryDm',
+        path: '/datamanage/warehouse-inventory',
+        component: () =>
+          import('#/views/datamanage/warehouse-inventory/index.vue'),
+        meta: {
+          title: '库房备品清单管理',
+          icon: 'material-symbols:table-view',
+        },
+      },
+      {
+        name: 'PartSpareMappingDm',
+        path: '/datamanage/part-spare-mapping',
+        component: () =>
+          import('#/views/datamanage/part-spare-mapping/index.vue'),
+        meta: {
+          title: '部件与备品映射关系管理',
+          icon: 'material-symbols:table-view',
+        },
+      },
     ],
   },
 ];

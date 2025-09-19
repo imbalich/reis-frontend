@@ -75,19 +75,9 @@ export const createProjectSchema: VbenFormSchema[] = [
     rules: 'required',
   },
   {
-    component: 'Select',
+    component: 'Input',
     componentProps: {
-      allowClear: false,
-      options: [
-        {
-          label: '机破',
-          value: 'jp',
-        },
-        {
-          label: '临修',
-          value: 'lx',
-        },
-      ],
+      placeholder: '请输入任务类型，如：机破、临修、大修等',
     },
     fieldName: 'task_type',
     label: '任务类型',
