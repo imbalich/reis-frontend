@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { message } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -20,6 +20,7 @@ const [Form, formApi] = useVbenForm({
 const original_img = ref('');
 const optimize_img = ref('');
 const tableData = ref();
+const equal_lifetime_t = ref(0);
 const loading = ref(false);
 
 // 处理提交逻辑
@@ -39,6 +40,16 @@ const handleSubmit = async () => {
       tableData.value = res.result;
       original_img.value = `data:image/png;base64,${res.img_original_result}`;
       optimize_img.value = `data:image/png;base64,${res.img_optimize_result}`;
+      equal_lifetime_t.value = res.equal_lifetime_t;
+      if (!equal_lifetime_t.value) {
+        Modal.info({
+          title: '提示',
+          content: '未找到等寿命点，保证所有部件在t0时刻均大于目标值R(t)',
+          okText: '确定',
+          centered: true, // 居中显示
+          onOk() {},
+        });
+      }
       message.success('成功请求到数据');
     } else {
       // 数据不匹配，触发POST生成

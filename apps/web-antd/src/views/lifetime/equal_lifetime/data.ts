@@ -61,7 +61,7 @@ export const schema: VbenFormSchema[] = [
   {
     component: 'InputNumber',
     fieldName: 'target_sf',
-    label: '寿命目标值',
+    label: '目标值(R(t))',
     componentProps: {
       min: 0,
       max: 1,
@@ -72,7 +72,7 @@ export const schema: VbenFormSchema[] = [
   {
     component: 'InputNumber',
     fieldName: 'step_start',
-    label: '等寿命点搜索步长起点',
+    label: '区间起点(R(t))',
     componentProps: {
       min: 0,
       max: 1,
@@ -83,7 +83,7 @@ export const schema: VbenFormSchema[] = [
   {
     component: 'InputNumber',
     fieldName: 'step_end',
-    label: '等寿命点搜索步长终点',
+    label: '区间终点(R(t))',
     componentProps: {
       min: 0,
       max: 1,
@@ -110,20 +110,22 @@ export const columns: VxeGridProps['columns'] = [
   {
     field: 'optimized_pdf',
     title: '优化后FPMH(t0)',
+    formatter: ({ cellValue }) => cellValue ?? '---',
   },
   {
     field: 'original_equal_point_pdf',
     title: '优化前FPMH(t)',
+    formatter: ({ cellValue }) => cellValue ?? '---',
   },
   {
     field: 'optimized_equal_point_pdf',
     title: '优化后FPMH(t)',
+    formatter: ({ cellValue }) => cellValue ?? '---',
   },
   {
     field: 'need_optimization',
     title: '是否需要优化',
     formatter: ({ row }) => {
-      // 保留原始值到 data-attr
       return row.need_optimization ? '是' : '否';
     },
   },

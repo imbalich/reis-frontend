@@ -158,7 +158,7 @@ const chartStrategy = computed(() =>
         <a-button
           type="primary"
           @click="handleSubmit"
-          style="position: absolute; bottom: 5px; right: 40px"
+          style="position: absolute; right: 40px; bottom: 5px"
         >
           提交
         </a-button>
@@ -219,7 +219,7 @@ const chartStrategy = computed(() =>
           :strategy="chartStrategy"
           style="height: 350px"
         />
-        <div v-else style="text-align: center; color: #aaa; padding: 60px 0">
+        <div v-else style="padding: 60px 0; color: #aaa; text-align: center">
           请先查询并选择分布类型
         </div>
       </a-card>

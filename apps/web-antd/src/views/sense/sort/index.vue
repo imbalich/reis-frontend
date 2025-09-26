@@ -156,14 +156,14 @@ function handleShowDetail(field: string, row: any) {
         <a-button
           type="primary"
           @click="doQuery"
-          style="position: absolute; bottom: 20px; right: 40px"
+          style="position: absolute; right: 40px; bottom: 20px"
         >
           提交
         </a-button>
         <a-button
           type="default"
           @click="handleReset"
-          style="position: absolute; bottom: 20px; right: 120px"
+          style="position: absolute; right: 120px; bottom: 20px"
         >
           重置
         </a-button>
@@ -178,7 +178,7 @@ function handleShowDetail(field: string, row: any) {
         </template>
         <template #check_tools_sign="{ row }">
           <span
-            style="cursor: pointer; color: #1677ff"
+            style="color: #1677ff; cursor: pointer"
             @click="handleShowDetail('check_tools_sign', row)"
           >
             {{ row.check_tools_sign }}
@@ -186,7 +186,7 @@ function handleShowDetail(field: string, row: any) {
         </template>
         <template #self_create_by="{ row }">
           <span
-            style="cursor: pointer; color: #1677ff"
+            style="color: #1677ff; cursor: pointer"
             @click="handleShowDetail('self_create_by', row)"
           >
             {{ row.self_create_by }}
@@ -194,7 +194,7 @@ function handleShowDetail(field: string, row: any) {
         </template>
         <template #extra_source_code="{ row }">
           <span
-            style="cursor: pointer; color: #1677ff"
+            style="color: #1677ff; cursor: pointer"
             @click="handleShowDetail('extra_source_code', row)"
           >
             {{ row.extra_source_code }}
@@ -202,7 +202,7 @@ function handleShowDetail(field: string, row: any) {
         </template>
         <template #extra_supplier="{ row }">
           <span
-            style="cursor: pointer; color: #1677ff"
+            style="color: #1677ff; cursor: pointer"
             @click="handleShowDetail('extra_supplier', row)"
           >
             {{ row.extra_supplier }}
@@ -210,7 +210,7 @@ function handleShowDetail(field: string, row: any) {
         </template>
         <template #version="{ row }">
           <span
-            style="cursor: pointer; color: #1677ff"
+            style="color: #1677ff; cursor: pointer"
             @click="handleShowDetail('version', row)"
           >
             {{ row.version }}
@@ -236,7 +236,7 @@ function handleShowDetail(field: string, row: any) {
           </template>
         </a-list>
       </div>
-      <div v-else style="text-align: center; color: #aaa; padding: 32px 0">
+      <div v-else style="padding: 32px 0; color: #aaa; text-align: center">
         无数据
       </div>
     </a-modal>
