@@ -7,13 +7,13 @@ export const schema: VbenFormSchema[] = [
     component: 'ApiSelect',
     fieldName: 'model',
     label: '产品型号',
+    rules: 'required',
     componentProps: {
       allowClear: true,
       showSearch: true, // 显示搜索框
       class: 'w-full', // w-full 表示组件宽度 100% 铺满容器
       api: async () => {
         const res = await getDmFailureModelApi();
-        // console.log(res);
         return res.map((item: string) => ({
           label: item,
           value: item,
@@ -43,14 +43,10 @@ export const schema: VbenFormSchema[] = [
           const res = await getDmFaultLocationByModelApi({
             product_model: params.model,
           });
-          return res.map((item: string) => {
-            const match = item.match(/（(.*?)）/);
-            const part = match ? match[1] : '';
-            return {
-              label: item,
-              value: part,
-            };
-          });
+          return res.map((item: string) => ({
+            label: `${item[0]}(${item[1]})`,
+            value: item[1],
+          }));
         },
         params: {
           model: values.model,

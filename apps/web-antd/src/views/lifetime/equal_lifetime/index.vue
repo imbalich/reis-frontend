@@ -103,14 +103,14 @@ watch([tableData, loading], () => {
         <a-button
           type="primary"
           @click="handleSubmit"
-          style="position: absolute; bottom: 5px; right: 40px"
+          style="position: absolute; right: 40px; bottom: 5px"
         >
           提交
         </a-button>
         <a-button
           type="default"
           @click="handleReset"
-          style="position: absolute; bottom: 5px; right: 120px"
+          style="position: absolute; right: 120px; bottom: 5px"
         >
           重置
         </a-button>

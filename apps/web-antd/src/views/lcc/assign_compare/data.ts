@@ -36,6 +36,13 @@ export const similarProductSchema: VbenFormSchema[] = [
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        // 添加 filterOption 配置，输入框匹配名称
+        filterOption: (input: string, option: any) => {
+          return (
+            option.label?.toLowerCase().includes(input.toLowerCase()) ||
+            option.value?.toLowerCase().includes(input.toLowerCase())
+          );
+        },
         api: async (params: any) => {
           // params.product_model 就是依赖字段
           if (!params?.model) return [];
@@ -98,6 +105,13 @@ export const generateBatchFormItems = (timestamp: number): VbenFormSchema[] => [
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        // 添加 filterOption 配置，输入框匹配名称
+        filterOption: (input: string, option: any) => {
+          return (
+            option.label?.toLowerCase().includes(input.toLowerCase()) ||
+            option.value?.toLowerCase().includes(input.toLowerCase())
+          );
+        },
         api: async (params: any) => {
           if (!params?.[`model_${timestamp}`]) return [];
           const res = await getDmFaultLocationByModelApi({

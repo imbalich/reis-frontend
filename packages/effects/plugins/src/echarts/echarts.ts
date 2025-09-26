@@ -18,10 +18,12 @@ import {
   LineChart,
   PieChart,
   RadarChart,
+  ScatterChart,
 } from 'echarts/charts';
 import {
   // 数据集组件
   DatasetComponent,
+  GraphicComponent,
   GridComponent,
   LegendComponent,
   TitleComponent,
@@ -60,7 +62,9 @@ echarts.use([
   CanvasRenderer,
   LegendComponent,
   ToolboxComponent,
+  GraphicComponent,
   GaugeChart,
+  ScatterChart,
 ]);
 
 export default echarts;

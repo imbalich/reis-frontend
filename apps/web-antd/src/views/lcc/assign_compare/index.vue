@@ -249,7 +249,7 @@ watch([tableData, loading], () => {
         <a-tab-pane key="planA" tab="方案1">
           <div
             class="flex space-x-2"
-            style="position: absolute; top: -50px; right: 0px"
+            style="position: absolute; top: -50px; right: 0"
           >
             <a-button
               type="primary"
@@ -286,7 +286,7 @@ watch([tableData, loading], () => {
         <a-tab-pane key="planB" tab="方案2">
           <div
             class="flex space-x-2"
-            style="position: absolute; top: -50px; right: 0px"
+            style="position: absolute; top: -50px; right: 0"
           >
             <a-button
               type="primary"

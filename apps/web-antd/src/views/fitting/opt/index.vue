@@ -45,6 +45,11 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
+
+// 处理重置表单
+const handleReset = () => {
+  formApi.resetForm();
+};
 </script>
 
 <template>
@@ -58,10 +63,17 @@ const handleSubmit = async () => {
         <Form />
         <a-button
           type="primary"
-          style="position: absolute; right: 40px; bottom: 10px"
+          style="position: absolute; right: 40px; bottom: 5px"
           @click="handleSubmit"
         >
           提交
+        </a-button>
+        <a-button
+          type="default"
+          @click="handleReset"
+          style="position: absolute; right: 120px; bottom: 5px"
+        >
+          重置
         </a-button>
       </a-card>
     </div>

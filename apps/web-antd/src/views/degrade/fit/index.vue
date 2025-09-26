@@ -66,14 +66,14 @@ const handleReset = () => {
         <a-button
           type="primary"
           @click="handleSubmit"
-          style="position: absolute; bottom: 5px; right: 40px"
+          style="position: absolute; right: 40px; bottom: 5px"
         >
           提交
         </a-button>
         <a-button
           type="default"
           @click="handleReset"
-          style="position: absolute; bottom: 5px; right: 120px"
+          style="position: absolute; right: 120px; bottom: 5px"
         >
           重置
         </a-button>
@@ -89,7 +89,7 @@ const handleReset = () => {
           :loading="loading"
           style="height: 450px"
         />
-        <div v-else style="text-align: center; color: #aaa; padding: 60px 0">
+        <div v-else style="padding: 60px 0; color: #aaa; text-align: center">
           请先提交表单后获取退化曲线
         </div>
       </a-card>
@@ -110,7 +110,7 @@ const handleReset = () => {
           <a-form-item label="剩余时长（预测）">
             {{ currentFunction?.difference }}（小时）
           </a-form-item>
-          <span style="color: #ee6666">
+          <span style="color: #e66">
             注意：若选择了“产品编号”，请填写“失效阈值”，否则无法输出结果!
           </span>
         </a-form>

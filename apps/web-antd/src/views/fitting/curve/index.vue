@@ -71,6 +71,11 @@ const handleSubmit = async () => {
   }
 };
 
+// 处理重置表单
+const handleReset = () => {
+  formApi.resetForm();
+};
+
 // 左侧策略选择表单
 
 // 图表 funcType 可选
@@ -153,9 +158,16 @@ const chartStrategy = computed(() =>
         <a-button
           type="primary"
           @click="handleSubmit"
-          style="position: absolute; bottom: 10px; right: 40px"
+          style="position: absolute; bottom: 5px; right: 40px"
         >
           提交
+        </a-button>
+        <a-button
+          type="default"
+          @click="handleReset"
+          style="position: absolute; right: 120px; bottom: 5px"
+        >
+          重置
         </a-button>
       </a-card>
     </div>

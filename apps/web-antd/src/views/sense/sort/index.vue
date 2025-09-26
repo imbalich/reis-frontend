@@ -84,6 +84,11 @@ const doQuery = async () => {
   }
 };
 
+// 处理重置表单
+const handleReset = () => {
+  formApi.resetForm(); // 重置表单字段
+};
+
 // 表格
 const gridOptions = {
   rowConfig: {
@@ -91,6 +96,9 @@ const gridOptions = {
   },
   checkboxConfig: {
     highlight: true,
+  },
+  pagerConfig: {
+    enabled: false,
   },
   height: 'auto',
   maxHeight: 200,
@@ -142,19 +150,26 @@ function handleShowDetail(field: string, row: any) {
 
 <template>
   <Page auto-content-height>
-    <div class="mt-1 w-full" style="height: 240px">
+    <div class="w-full" style="height: 240px">
       <a-card title="参数输入区">
         <Form />
         <a-button
           type="primary"
           @click="doQuery"
-          style="position: absolute; bottom: 30px; right: 40px"
+          style="position: absolute; bottom: 20px; right: 40px"
         >
-          查询
+          提交
+        </a-button>
+        <a-button
+          type="default"
+          @click="handleReset"
+          style="position: absolute; bottom: 20px; right: 120px"
+        >
+          重置
         </a-button>
       </a-card>
     </div>
-    <a-card title="敏感度分析排序结果" class="mt-4">
+    <a-card title="敏感度分析排序结果">
       <Grid>
         <template #check_bezier="{ row }">
           <span>

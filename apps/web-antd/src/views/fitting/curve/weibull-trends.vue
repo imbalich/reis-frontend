@@ -48,10 +48,13 @@ const renderChart = () => {
     },
     series: [
       {
-        areaStyle: {},
+        // areaStyle: {},
         data: yData.value,
         itemStyle: {
           color: '#5ab1ef',
+        },
+        lineStyle: {
+          width: 3,
         },
         smooth: true,
         type: 'line',
@@ -102,7 +105,6 @@ const renderChart = () => {
     ],
   });
 };
-// console.log('Weibull Trends Chart Data:', renderChart);
 onMounted(renderChart);
 watch([() => props.strategy, () => props.funcType], renderChart);
 </script>

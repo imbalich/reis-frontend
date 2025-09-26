@@ -87,8 +87,8 @@ export const generateBatchFormItems = (timestamp: number): VbenFormSchema[] => [
       api: async () => {
         const res = await getDmFailureModelApi();
         return res.map((item: string) => ({
-          label: `${item[0]}(${item[1]})`,
-          value: item[1],
+          label: item,
+          value: item,
         }));
       },
     },
@@ -104,6 +104,13 @@ export const generateBatchFormItems = (timestamp: number): VbenFormSchema[] => [
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        // 添加 filterOption 配置，输入框匹配名称
+        filterOption: (input: string, option: any) => {
+          return (
+            option.label?.toLowerCase().includes(input.toLowerCase()) ||
+            option.value?.toLowerCase().includes(input.toLowerCase())
+          );
+        },
         api: async (params: any) => {
           if (!params?.[`model_${timestamp}`]) return [];
           const res = await getDmFaultLocationByModelApi({

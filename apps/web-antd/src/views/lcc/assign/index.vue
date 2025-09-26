@@ -188,7 +188,7 @@ watch([tableData, loading], () => {
         <a-tab-pane key="similar" tab="相似产品-部件信息">
           <div
             class="flex space-x-2"
-            style="position: absolute; top: -50px; right: 0px"
+            style="position: absolute; top: -50px; right: 0"
           >
             <a-button
               type="primary"
