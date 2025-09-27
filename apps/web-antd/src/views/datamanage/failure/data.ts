@@ -37,6 +37,13 @@ export const querySchema: VbenFormSchema[] = [
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        // 添加 filterOption 配置，输入框匹配名称
+        filterOption: (input: string, option: any) => {
+          return (
+            option.label?.toLowerCase().includes(input.toLowerCase()) ||
+            option.value?.toLowerCase().includes(input.toLowerCase())
+          );
+        },
         api: async (params: any) => {
           // params.product_model 就是依赖字段
           if (!params?.product_model) return [];
@@ -44,8 +51,8 @@ export const querySchema: VbenFormSchema[] = [
             product_model: params.product_model,
           });
           return res.map((item: string) => ({
-            label: item,
-            value: item.split('（')[0],
+            label: `${item[0]}(${item[1]})`,
+            value: item[0],
           }));
         },
         params: {

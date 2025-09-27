@@ -219,12 +219,8 @@ export const columns: VxeGridProps['columns'] = [
     title: 'FPMH均值',
   },
   {
-    field: 'lcc_user',
-    title: 'LCC用户评估值',
-  },
-  {
     field: 'lcc_ratio',
-    title: 'LCC公司评估值',
+    title: 'LCC评估值',
   },
   {
     field: 'sort',

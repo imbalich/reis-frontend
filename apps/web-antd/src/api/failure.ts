@@ -46,10 +46,13 @@ export interface DmFaultLocationByModelParams {
 }
 
 export function getDmFailureListApi(params: DmFailureParams) {
-  return requestClient.get<PaginationResult>('/api/v1/datamanage/failure', {
-    params,
-    paramsSerializer: 'repeat',
-  });
+  return requestClient.get<PaginationResult<DmFailureRes>>(
+    '/api/v1/datamanage/failure',
+    {
+      params,
+      paramsSerializer: 'repeat',
+    },
+  );
 }
 
 export function getDmFailureModelApi() {

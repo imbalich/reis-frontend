@@ -24,10 +24,13 @@ export interface DmReplaceRes {
 }
 
 export function getDmReplaceListApi(params: DmReplaceParams) {
-  return requestClient.get<PaginationResult>('/api/v1/datamanage/replace', {
-    params,
-    paramsSerializer: 'repeat',
-  });
+  return requestClient.get<PaginationResult<DmReplaceRes>>(
+    '/api/v1/datamanage/replace',
+    {
+      params,
+      paramsSerializer: 'repeat',
+    },
+  );
 }
 
 export function getDmReplaceModelApi() {

@@ -28,10 +28,13 @@ export interface DmDespatchRes {
 }
 
 export function getDmDespatchListApi(params: DmDespatchParams) {
-  return requestClient.get<PaginationResult>('/api/v1/datamanage/despatch', {
-    params,
-    paramsSerializer: 'repeat',
-  });
+  return requestClient.get<PaginationResult<DmDespatchRes>>(
+    '/api/v1/datamanage/despatch',
+    {
+      params,
+      paramsSerializer: 'repeat',
+    },
+  );
 }
 
 export function getDmDespatchModelApi() {

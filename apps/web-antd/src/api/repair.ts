@@ -20,10 +20,13 @@ export interface DmRepairRes {
 }
 
 export function getDmRepairListApi(params: DmRepairParams) {
-  return requestClient.get<PaginationResult>('/api/v1/datamanage/repair', {
-    params,
-    paramsSerializer: 'repeat',
-  });
+  return requestClient.get<PaginationResult<DmRepairRes>>(
+    '/api/v1/datamanage/repair',
+    {
+      params,
+      paramsSerializer: 'repeat',
+    },
+  );
 }
 
 export function getDmRepairModelApi() {
