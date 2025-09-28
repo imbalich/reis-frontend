@@ -41,10 +41,6 @@ const emit = defineEmits<{
 // 本地配置状态
 const localConfig = ref<ProjectCalculationConfig>({ ...props.projectConfig });
 
-// 复选框组状态
-const reliabilityOptions = ref<string[]>([]);
-const availabilityOptions = ref<string[]>([]);
-
 // 验证状态
 const validationErrors = ref<Record<string, string>>({});
 
@@ -88,47 +84,21 @@ const tableColumns = computed(() => {
       width: 120,
       sorter: true,
     },
-  ];
-
-  if (localConfig.value.reliabilityCalc.reliability) {
-    columns.push({
+    {
       title: '可靠度 R(t)',
       key: 'reliability',
       dataIndex: 'reliability',
       width: 120,
       sorter: true,
-    });
-  }
-
-  if (localConfig.value.reliabilityCalc.mttf) {
-    columns.push({
-      title: 'MTTF (小时)',
-      key: 'mttf',
-      dataIndex: 'mttf',
-      width: 120,
-      sorter: true,
-    });
-  }
-
-  if (localConfig.value.availabilityCalc.mtbf) {
-    columns.push({
+    },
+    {
       title: 'MTBF (小时)',
       key: 'mtbf',
       dataIndex: 'mtbf',
       width: 120,
       sorter: true,
-    });
-  }
-
-  if (localConfig.value.availabilityCalc.mttr) {
-    columns.push({
-      title: 'MTTR (小时)',
-      key: 'mttr',
-      dataIndex: 'mttr',
-      width: 120,
-      sorter: true,
-    });
-  }
+    },
+  ];
 
   return columns;
 });
@@ -136,8 +106,7 @@ const tableColumns = computed(() => {
 // 配置是否有效
 const isConfigValid = computed(() => {
   const hasValidConfig = validateConfig();
-  const hasCalcOptions = localConfig.value.reliabilityCalc.reliability;
-  return hasValidConfig && hasCalcOptions;
+  return hasValidConfig;
 });
 
 // 是否有图形数据
@@ -297,29 +266,11 @@ const validateAndUpdate = () => {
   }
 };
 
-// 初始化复选框状态
-const initCheckboxStates = () => {
-  reliabilityOptions.value = [];
-  if (localConfig.value.reliabilityCalc.reliability)
-    reliabilityOptions.value.push('reliability');
-  if (localConfig.value.reliabilityCalc.mttf)
-    reliabilityOptions.value.push('mttf');
-  if (localConfig.value.reliabilityCalc.considerMaintenance)
-    reliabilityOptions.value.push('considerMaintenance');
-
-  availabilityOptions.value = [];
-  if (localConfig.value.availabilityCalc.mtbf)
-    availabilityOptions.value.push('mtbf');
-  if (localConfig.value.availabilityCalc.mttr)
-    availabilityOptions.value.push('mttr');
-};
-
 // 监听props变化
 watch(
   () => props.projectConfig,
   (newConfig) => {
     localConfig.value = { ...newConfig };
-    initCheckboxStates();
   },
   { immediate: true, deep: true },
 );
@@ -327,25 +278,6 @@ watch(
 // 更新配置
 const updateConfig = () => {
   emit('configUpdate', { ...localConfig.value });
-};
-
-// 更新可靠性计算选项
-const updateReliabilityCalc = (checkedValues: string[]) => {
-  localConfig.value.reliabilityCalc = {
-    reliability: checkedValues.includes('reliability'),
-    mttf: checkedValues.includes('mttf'),
-    considerMaintenance: checkedValues.includes('considerMaintenance'),
-  };
-  updateConfig();
-};
-
-// 更新可用度计算选项
-const updateAvailabilityCalc = (checkedValues: string[]) => {
-  localConfig.value.availabilityCalc = {
-    mtbf: checkedValues.includes('mtbf'),
-    mttr: checkedValues.includes('mttr'),
-  };
-  updateConfig();
 };
 
 // 生成时间序列数据
@@ -363,24 +295,15 @@ const generateTimeSeriesData = () => {
     };
 
     // 使用真实计算结果
-    if (localConfig.value.reliabilityCalc.reliability) {
-      record.reliability = calculationResults.value.systemReliability[i] || 0;
-    }
+    record.reliability = calculationResults.value.systemReliability[i] || 0;
 
-    // 未实现的功能使用模拟数据
-    if (localConfig.value.reliabilityCalc.mttf) {
-      const t = time / 8760; // 转换为年
-      record.mttf = 10_000 * (1 - 0.1 * t);
-    }
-
-    if (localConfig.value.availabilityCalc.mtbf) {
-      const t = time / 8760;
-      record.mtbf = 8760 * (1 - 0.05 * t);
-    }
-
-    if (localConfig.value.availabilityCalc.mttr) {
-      const t = time / 8760;
-      record.mttr = 24 + 2 * t;
+    // MTBF使用模拟数据（基于系统可靠度计算）
+    const reliability = record.reliability;
+    if (reliability > 0) {
+      // 基于可靠度估算MTBF：MTBF = -t / ln(R(t))
+      record.mtbf = time > 0 ? -time / Math.log(reliability) : 0;
+    } else {
+      record.mtbf = 0;
     }
 
     data.push(record);
@@ -462,9 +385,6 @@ const triggerCalculation = async () => {
     calculating.value = false;
   }
 };
-
-// 初始化
-initCheckboxStates();
 </script>
 
 <template>
@@ -561,56 +481,14 @@ initCheckboxStates();
       </a-form-item>
     </a-form>
 
-    <!-- 可靠性计算设置栏目 -->
-    <a-divider orientation="left">可靠性计算设置</a-divider>
+    <!-- 计算设置栏目 -->
+    <a-divider orientation="left">计算设置</a-divider>
 
     <a-form layout="vertical">
-      <a-form-item label="计算参数选择">
-        <a-checkbox-group
-          v-model:value="reliabilityOptions"
-          @change="updateReliabilityCalc"
-        >
-          <a-checkbox value="reliability" :disabled="false">
-            可靠度 R(t)
-          </a-checkbox>
-          <a-checkbox value="mttf" :disabled="true">
-            平均故障时间 MTTF
-            <a-tag color="orange" size="small">开发中</a-tag>
-          </a-checkbox>
-          <a-checkbox value="considerMaintenance" :disabled="true">
-            考虑维修影响
-            <a-tag color="orange" size="small">开发中</a-tag>
-          </a-checkbox>
-        </a-checkbox-group>
+      <a-form-item label="计算参数">
         <div style="margin-top: 8px; font-size: 12px; color: #666">
-          <div>• 可靠度：系统在指定时间内正常工作的概率</div>
-          <div>• MTTF：平均故障时间，表示系统预期的无故障工作时间</div>
-          <div>• 考虑维修：计算时使用节点的维修性数据</div>
-        </div>
-      </a-form-item>
-    </a-form>
-
-    <!-- 可用度计算设置栏目 -->
-    <a-divider orientation="left">可用度计算设置</a-divider>
-
-    <a-form layout="vertical">
-      <a-form-item label="计算参数选择">
-        <a-checkbox-group
-          v-model:value="availabilityOptions"
-          @change="updateAvailabilityCalc"
-        >
-          <a-checkbox value="mtbf" :disabled="true">
-            平均故障间隔时间 MTBF
-            <a-tag color="orange" size="small">开发中</a-tag>
-          </a-checkbox>
-          <a-checkbox value="mttr" :disabled="true">
-            平均修复时间 MTTR
-            <a-tag color="orange" size="small">开发中</a-tag>
-          </a-checkbox>
-        </a-checkbox-group>
-        <div style="margin-top: 8px; font-size: 12px; color: #666">
-          <div>• MTBF：平均故障间隔时间，包含修复时间的完整周期</div>
-          <div>• MTTR：平均修复时间，系统从故障到修复完成的平均时间</div>
+          <div>• 可靠度 R(t)：系统在指定时间内正常工作的概率</div>
+          <div>• MTBF：平均故障间隔时间，基于可靠度计算得出</div>
         </div>
       </a-form-item>
     </a-form>
@@ -684,10 +562,7 @@ initCheckboxStates();
         style="margin-bottom: 16px"
       >
         <div class="result-grid">
-          <div
-            v-if="localConfig.reliabilityCalc.reliability"
-            class="result-item"
-          >
+          <div class="result-item">
             <div class="result-label">可靠度 R(t)</div>
             <div class="result-value">
               {{
@@ -698,19 +573,11 @@ initCheckboxStates();
             </div>
           </div>
 
-          <div v-if="localConfig.reliabilityCalc.mttf" class="result-item">
-            <div class="result-label">MTTF (小时)</div>
-            <div class="result-value">{{ mockResults.mttf.toFixed(2) }}</div>
-          </div>
-
-          <div v-if="localConfig.availabilityCalc.mtbf" class="result-item">
+          <div class="result-item">
             <div class="result-label">MTBF (小时)</div>
-            <div class="result-value">{{ mockResults.mtbf.toFixed(2) }}</div>
-          </div>
-
-          <div v-if="localConfig.availabilityCalc.mttr" class="result-item">
-            <div class="result-label">MTTR (小时)</div>
-            <div class="result-value">{{ mockResults.mttr.toFixed(2) }}</div>
+            <div class="result-value">
+              {{ timeSeriesData[displayTimeIndex]?.mtbf?.toFixed(4) || 'N/A' }}
+            </div>
           </div>
         </div>
       </a-card>
@@ -731,14 +598,8 @@ initCheckboxStates();
             <template v-else-if="column.key === 'reliability'">
               {{ (record.reliability || 0).toFixed(4) }}
             </template>
-            <template v-else-if="column.key === 'mttf'">
-              {{ (record.mttf || 0).toFixed(2) }}
-            </template>
             <template v-else-if="column.key === 'mtbf'">
-              {{ (record.mtbf || 0).toFixed(2) }}
-            </template>
-            <template v-else-if="column.key === 'mttr'">
-              {{ (record.mttr || 0).toFixed(2) }}
+              {{ (record.mtbf || 0).toFixed(4) }}
             </template>
           </template>
         </a-table>

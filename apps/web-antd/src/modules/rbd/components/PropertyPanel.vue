@@ -24,6 +24,12 @@ const isControlNode = computed(() => {
   );
 });
 
+// FPMH转1/小时单位（用于内部计算）
+const convertFPMHToPerHour = (fpmhValue: number): number => {
+  // FPMH 转 1/小时: FPMH / 1,000,000
+  return fpmhValue / 1_000_000;
+};
+
 // 更新节点属性
 const updateNodeProperties = () => {
   if (props.selectedNode) {
@@ -95,26 +101,7 @@ const formatMTBF = (mtbf: number): string => {
     return '无效';
   }
 
-  if (mtbf >= 1e9) {
-    return `${(mtbf / 1e9).toFixed(2)}e+9 (约${(mtbf / 8760 / 1e6).toFixed(1)}百万年)`;
-  } else if (mtbf >= 1e6) {
-    return `${(mtbf / 1e6).toFixed(2)}e+6 (约${(mtbf / 8760 / 1e3).toFixed(1)}千年)`;
-  } else if (mtbf >= 1e3) {
-    return `${(mtbf / 1e3).toFixed(2)}e+3 (约${(mtbf / 8760).toFixed(1)}年)`;
-  } else {
-    return `${mtbf.toFixed(2)} (约${(mtbf / 24).toFixed(1)}天)`;
-  }
-};
-
-// 设置故障率
-const setLambda = (lambda: number) => {
-  if (props.selectedNode && props.selectedNode.properties) {
-    const properties = props.selectedNode.properties as any;
-    if (properties.distribution) {
-      properties.distribution.lambda = lambda;
-      updateNodeProperties();
-    }
-  }
+  return mtbf.toFixed(4);
 };
 </script>
 
@@ -142,10 +129,20 @@ const setLambda = (lambda: number) => {
       </a-form-item>
 
       <!-- 节点名称（K/N逻辑节点除外） -->
-      <a-form-item v-if="selectedNode.properties.nodeType !== 'kn'" label="节点名称">
-        <a-input v-model:value="selectedNode.properties.name" placeholder="请输入节点名称" :disabled="isControlNode"
-          @change="updateNodeProperties" />
-        <div v-if="isControlNode" style="margin-top: 4px; font-size: 12px; color: #999">
+      <a-form-item
+        v-if="selectedNode.properties.nodeType !== 'kn'"
+        label="节点名称"
+      >
+        <a-input
+          v-model:value="selectedNode.properties.name"
+          placeholder="请输入节点名称"
+          :disabled="isControlNode"
+          @change="updateNodeProperties"
+        />
+        <div
+          v-if="isControlNode"
+          style="margin-top: 4px; font-size: 12px; color: #999"
+        >
           控制节点名称不可修改
         </div>
       </a-form-item>
@@ -153,8 +150,14 @@ const setLambda = (lambda: number) => {
       <!-- 串联节点专用属性 -->
       <template v-if="selectedNode.properties.nodeType === 'series'">
         <a-form-item label="组件数量">
-          <a-input-number v-model:value="selectedNode.properties.componentCount" :min="1" :max="1000"
-            placeholder="请输入组件数量" style="width: 100%" @change="updateNodeProperties" />
+          <a-input-number
+            v-model:value="selectedNode.properties.componentCount"
+            :min="1"
+            :max="1000"
+            placeholder="请输入组件数量"
+            style="width: 100%"
+            @change="updateNodeProperties"
+          />
           <div style="margin-top: 4px; font-size: 12px; color: #666">
             串联系统中的相同组件数量
           </div>
@@ -164,13 +167,25 @@ const setLambda = (lambda: number) => {
       <!-- 并联节点专用属性 -->
       <template v-if="selectedNode.properties.nodeType === 'parallel'">
         <a-form-item label="维持数量 (K)">
-          <a-input-number v-model:value="selectedNode.properties.k" :min="1" :max="selectedNode.properties.n || 1000"
-            placeholder="需要保持工作的组件数量" style="width: 100%" @change="updateNodeProperties" />
+          <a-input-number
+            v-model:value="selectedNode.properties.k"
+            :min="1"
+            :max="selectedNode.properties.n || 1000"
+            placeholder="需要保持工作的组件数量"
+            style="width: 100%"
+            @change="updateNodeProperties"
+          />
         </a-form-item>
 
         <a-form-item label="总数量 (N)">
-          <a-input-number v-model:value="selectedNode.properties.n" :min="selectedNode.properties.k || 1" :max="1000"
-            placeholder="总组件数量" style="width: 100%" @change="updateNodeProperties" />
+          <a-input-number
+            v-model:value="selectedNode.properties.n"
+            :min="selectedNode.properties.k || 1"
+            :max="1000"
+            placeholder="总组件数量"
+            style="width: 100%"
+            @change="updateNodeProperties"
+          />
         </a-form-item>
 
         <div style="margin-bottom: 16px; font-size: 12px; color: #666">
@@ -181,13 +196,25 @@ const setLambda = (lambda: number) => {
       <!-- K/N逻辑节点专用属性 -->
       <template v-if="selectedNode.properties.nodeType === 'kn'">
         <a-form-item label="维持数量 (K)">
-          <a-input-number v-model:value="selectedNode.properties.k" :min="1" :max="selectedNode.properties.n || 1000"
-            placeholder="需要保持工作的链路数量" style="width: 100%" @change="updateKNNodeProperties" />
+          <a-input-number
+            v-model:value="selectedNode.properties.k"
+            :min="1"
+            :max="selectedNode.properties.n || 1000"
+            placeholder="需要保持工作的链路数量"
+            style="width: 100%"
+            @change="updateKNNodeProperties"
+          />
         </a-form-item>
 
         <a-form-item label="总数量 (N)">
-          <a-input-number v-model:value="selectedNode.properties.n" :min="selectedNode.properties.k || 1" :max="1000"
-            placeholder="总链路数量" style="width: 100%" @change="updateKNNodeProperties" />
+          <a-input-number
+            v-model:value="selectedNode.properties.n"
+            :min="selectedNode.properties.k || 1"
+            :max="1000"
+            placeholder="总链路数量"
+            style="width: 100%"
+            @change="updateKNNodeProperties"
+          />
         </a-form-item>
 
         <div style="margin-bottom: 16px; font-size: 12px; color: #666">
@@ -198,20 +225,35 @@ const setLambda = (lambda: number) => {
       <!-- 开始和结束节点的只读属性显示 -->
       <template v-if="isControlNode">
         <a-form-item label="节点描述">
-          <a-textarea :value="getControlNodeDescription(selectedNode.properties.nodeType)" disabled :rows="3"
-            style="color: #666" />
+          <a-textarea
+            :value="getControlNodeDescription(selectedNode.properties.nodeType)"
+            disabled
+            :rows="3"
+            style="color: #666"
+          />
         </a-form-item>
-        <a-alert message="控制节点说明" :description="getControlNodeAlert(selectedNode.properties.nodeType)" type="info"
-          show-icon style="margin-bottom: 16px" />
+        <a-alert
+          message="控制节点说明"
+          :description="getControlNodeAlert(selectedNode.properties.nodeType)"
+          type="info"
+          show-icon
+          style="margin-bottom: 16px"
+        />
       </template>
 
       <!-- 故障分布选择栏目（串联和并联节点） -->
-      <template v-if="['series', 'parallel'].includes(selectedNode.properties.nodeType)">
+      <template
+        v-if="['series', 'parallel'].includes(selectedNode.properties.nodeType)"
+      >
         <a-divider orientation="left">故障分布选择</a-divider>
 
         <a-form-item label="分布类型">
-          <a-select v-model:value="(selectedNode.properties as any).distribution.type" placeholder="选择故障分布类型"
-            style="width: 100%" @change="updateNodeProperties">
+          <a-select
+            v-model:value="(selectedNode.properties as any).distribution.type"
+            placeholder="选择故障分布类型"
+            style="width: 100%"
+            @change="updateNodeProperties"
+          >
             <a-select-option value="exponential">指数分布</a-select-option>
             <!-- 为未来扩展预留 -->
             <a-select-option value="weibull" disabled>
@@ -227,44 +269,47 @@ const setLambda = (lambda: number) => {
         </a-form-item>
 
         <!-- 指数分布参数 -->
-        <template v-if="
-          (selectedNode.properties as any).distribution.type === 'exponential'
-        ">
-          <a-form-item label="故障率 λ (1/小时)">
-            <a-input-number v-model:value="(selectedNode.properties as any).distribution.lambda
-              " :min="0" :max="1" :step="0.000000001" :precision="15" placeholder="输入故障率，支持科学计数法如1e-9"
-              style="width: 100%" @change="updateNodeProperties" />
+        <template
+          v-if="
+            (selectedNode.properties as any).distribution.type === 'exponential'
+          "
+        >
+          <a-form-item label="故障率 λ (FPMH)">
+            <a-input-number
+              v-model:value="
+                (selectedNode.properties as any).distribution.lambda
+              "
+              :min="0.001"
+              :max="1000000"
+              :step="0.001"
+              :precision="6"
+              placeholder="输入故障率"
+              style="width: 100%"
+              @change="updateNodeProperties"
+            />
             <div style="margin-top: 4px; font-size: 12px; color: #666">
-              λ = 1/MTBF，单位：故障次数/小时
+              λ = FPMH，单位：百万小时故障次数
               <br />
-              <span style="color: #1890ff">支持范围：1e-15 - 1 (对应MTBF: 1 - 1e+15小时)</span>
+              <span style="color: #1890ff">支持范围：0.001 - 1000000 (对应MTBF: 1 - 1e+9小时)</span>
               <br />
-              <span style="color: #666">示例：0.00000000260564 (极高可靠性组件)</span>
-            </div>
-            <div style="margin-top: 8px">
-              <span style="margin-right: 8px; font-size: 12px; color: #666">快速预设：</span>
-              <a-button size="small" @click="setLambda(0.000000001)" style="margin-right: 4px">
-                极高可靠性
-              </a-button>
-              <a-button size="small" @click="setLambda(0.000001)" style="margin-right: 4px">
-                高可靠性
-              </a-button>
-              <a-button size="small" @click="setLambda(0.0001)" style="margin-right: 4px">
-                中等可靠性
-              </a-button>
-              <a-button size="small" @click="setLambda(0.01)" style="margin-right: 4px">
-                低可靠性
-              </a-button>
+              <span style="color: #666">示例：2.60564 (极高可靠性组件)</span>
             </div>
           </a-form-item>
 
           <a-form-item label="计算得出的MTBF">
-            <a-input :value="formatMTBF(
-              calculateMTBF(
-                (selectedNode.properties as any).distribution.lambda,
-              ),
-            )
-              " disabled style="font-weight: bold; color: #1890ff" />
+            <a-input
+              :value="
+                formatMTBF(
+                  calculateMTBF(
+                    convertFPMHToPerHour(
+                      (selectedNode.properties as any).distribution.lambda,
+                    ),
+                  ),
+                )
+              "
+              disabled
+              style="font-weight: bold; color: #1890ff"
+            />
             <div style="margin-top: 4px; font-size: 12px; color: #666">
               平均故障间隔时间（小时），自动格式化显示
             </div>
@@ -272,27 +317,54 @@ const setLambda = (lambda: number) => {
         </template>
 
         <!-- 未来扩展：Weibull分布参数 -->
-        <template v-if="
-          (selectedNode.properties as any).distribution.type === 'weibull'
-        ">
-          <a-alert message="Weibull分布" description="形状参数和尺度参数设置（功能开发中）" type="warning" show-icon />
+        <template
+          v-if="
+            (selectedNode.properties as any).distribution.type === 'weibull'
+          "
+        >
+          <a-alert
+            message="Weibull分布"
+            description="形状参数和尺度参数设置（功能开发中）"
+            type="warning"
+            show-icon
+          />
         </template>
       </template>
 
       <!-- 可维修性数据栏目（串联和并联节点） -->
-      <template v-if="['series', 'parallel'].includes(selectedNode.properties.nodeType)">
+      <template
+        v-if="['series', 'parallel'].includes(selectedNode.properties.nodeType)"
+      >
         <a-divider orientation="left">可维修性数据</a-divider>
 
         <a-form-item label="维修时间 (小时)">
-          <a-input-number v-model:value="(selectedNode.properties as any).maintenance.maintenanceTime
-            " :min="0.1" :max="1000" :step="0.1" :precision="2" placeholder="输入维修时间" style="width: 100%"
-            @change="updateNodeProperties" />
+          <a-input-number
+            v-model:value="
+              (selectedNode.properties as any).maintenance.maintenanceTime
+            "
+            :min="0.1"
+            :max="1000"
+            :step="0.1"
+            :precision="2"
+            placeholder="输入维修时间"
+            style="width: 100%"
+            @change="updateNodeProperties"
+          />
         </a-form-item>
 
         <a-form-item label="后勤保障时间 (小时)">
-          <a-input-number v-model:value="(selectedNode.properties as any).maintenance.logisticTime
-            " :min="0.1" :max="1000" :step="0.1" :precision="2" placeholder="输入后勤保障时间" style="width: 100%"
-            @change="updateNodeProperties" />
+          <a-input-number
+            v-model:value="
+              (selectedNode.properties as any).maintenance.logisticTime
+            "
+            :min="0.1"
+            :max="1000"
+            :step="0.1"
+            :precision="2"
+            placeholder="输入后勤保障时间"
+            style="width: 100%"
+            @change="updateNodeProperties"
+          />
         </a-form-item>
       </template>
     </a-form>
