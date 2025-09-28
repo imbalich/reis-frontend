@@ -290,7 +290,9 @@ const formatMTBF = (mtbf: number): string => {
             <div style="margin-top: 4px; font-size: 12px; color: #666">
               λ = FPMH，单位：百万小时故障次数
               <br />
-              <span style="color: #1890ff">支持范围：0.001 - 1000000 (对应MTBF: 1 - 1e+9小时)</span>
+              <span style="color: #1890ff"
+                >支持范围：0.001 - 1000000 (对应MTBF: 1 - 1e+9小时)</span
+              >
               <br />
               <span style="color: #666">示例：2.60564 (极高可靠性组件)</span>
             </div>
