@@ -48,6 +48,14 @@ export interface UpdateRbdProjectParams {
   version?: number;
 }
 
+// 更新项目基本信息参数（不包含图形数据）
+export interface UpdateRbdProjectBasicInfoParams {
+  name?: string;
+  description?: string;
+  model?: string;
+  task_type?: string;
+}
+
 export interface DeleteProjectsParam {
   pks: number[];
 }
@@ -83,6 +91,16 @@ export async function updateRbdProjectApi(
   data: UpdateRbdProjectParams,
 ) {
   return requestClient.put(`/api/v1/rbd/projects/${id}`, data);
+}
+
+/**
+ * 更新RBD项目基本信息（不包含图形数据）
+ */
+export async function updateRbdProjectBasicInfoApi(
+  id: number | string,
+  data: UpdateRbdProjectBasicInfoParams,
+) {
+  return requestClient.put(`/api/v1/rbd/projects/${id}/basic-info`, data);
 }
 
 /**

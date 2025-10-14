@@ -1,11 +1,18 @@
 <script setup lang="ts">
+import type { CalculationAlgorithm } from '../calculation';
 import type { RBDGraphData } from '../types';
 
 import { computed, ref, watch } from 'vue';
 
 import { message } from 'ant-design-vue';
 
-import { calculateRBDReliability, validateRBDTopology } from '../calculation';
+import {
+  calculateRBDReliability,
+  getCurrentAlgorithm,
+  setCalculationAlgorithm,
+  testAlgorithms,
+  validateRBDTopology,
+} from '../calculation';
 
 // 定义props
 interface ProjectCalculationConfig {
@@ -49,6 +56,20 @@ const calculating = ref(false);
 const hasResults = ref(false);
 const calculationError = ref('');
 
+// 算法选择状态
+const selectedAlgorithm = ref<CalculationAlgorithm>(getCurrentAlgorithm());
+const algorithmOptions = [
+  { label: '自适应算法 (推荐)', value: 'adaptive' as CalculationAlgorithm },
+  { label: 'Factoring算法 (精确)', value: 'factoring' as CalculationAlgorithm },
+  {
+    label: '路径枚举法 (快速)',
+    value: 'path-enumeration' as CalculationAlgorithm,
+  },
+];
+
+// 对比测试状态
+const comparingAlgorithms = ref(false);
+
 // 计算结果
 const calculationResults = ref<{
   calculationTime: number;
@@ -66,14 +87,6 @@ const calculationResults = ref<{
 // 时间序列数据
 const timeSeriesData = ref<any[]>([]);
 
-// 模拟计算结果（用于未实现的功能）
-const mockResults = ref({
-  reliability: 0.9512,
-  mttf: 10_000,
-  mtbf: 8760,
-  mttr: 24,
-});
-
 // 表格列定义
 const tableColumns = computed(() => {
   const columns = [
@@ -89,6 +102,13 @@ const tableColumns = computed(() => {
       key: 'reliability',
       dataIndex: 'reliability',
       width: 120,
+      sorter: true,
+    },
+    {
+      title: '故障率 (FPMH)',
+      key: 'failureRate',
+      dataIndex: 'failureRate',
+      width: 140,
       sorter: true,
     },
     {
@@ -297,8 +317,22 @@ const generateTimeSeriesData = () => {
     // 使用真实计算结果
     record.reliability = calculationResults.value.systemReliability[i] || 0;
 
-    // MTBF使用模拟数据（基于系统可靠度计算）
+    // 计算故障率 λ(t) 并转换为FPMH
     const reliability = record.reliability;
+    if (reliability > 0 && time > 0) {
+      // 瞬时故障率：λ(t) = -ln(R(t)) / t
+      const failureRatePerHour = -Math.log(reliability) / time;
+      // 转换为FPMH：FPMH = λ × 1,000,000
+      record.failureRate = failureRatePerHour * 1_000_000;
+    } else if (time === 0) {
+      // t=0时，故障率为0 FPMH
+      record.failureRate = 0;
+    } else {
+      // 可靠度为0时，故障率为无穷大，这里设为NaN表示无效
+      record.failureRate = Number.NaN;
+    }
+
+    // 计算MTBF
     if (reliability > 0) {
       // 基于可靠度估算MTBF：MTBF = -t / ln(R(t))
       record.mtbf = time > 0 ? -time / Math.log(reliability) : 0;
@@ -335,6 +369,10 @@ const triggerCalculation = async () => {
   }
 
   console.log('触发项目级可靠性计算，配置:', localConfig.value);
+  console.log('当前选择的算法:', selectedAlgorithm.value);
+
+  // 设置计算算法
+  setCalculationAlgorithm(selectedAlgorithm.value);
 
   // 开始计算
   calculating.value = true;
@@ -343,7 +381,10 @@ const triggerCalculation = async () => {
 
   try {
     // 验证拓扑结构
-    const topologyResult = validateRBDTopology(props.graphData!);
+    const topologyResult = validateRBDTopology(
+      props.graphData!,
+      selectedAlgorithm.value,
+    );
     if (!topologyResult.isValid) {
       throw new Error(topologyResult.error || '拓扑结构验证失败');
     }
@@ -361,6 +402,7 @@ const triggerCalculation = async () => {
           localConfig.value.reliabilityCalc.considerMaintenance,
         calculationTypes: ['reliability'], // 目前只支持可靠度计算
       },
+      selectedAlgorithm.value, // 传递算法参数
     );
 
     if (result.error) {
@@ -383,6 +425,63 @@ const triggerCalculation = async () => {
     message.error(calculationError.value);
   } finally {
     calculating.value = false;
+  }
+};
+
+// 对比测试所有算法
+const compareAlgorithms = async () => {
+  // 先验证配置
+  const isValid = validateConfig();
+
+  if (!isValid) {
+    message.error('配置验证失败，请检查输入参数');
+    return;
+  }
+
+  // 检查图形数据
+  if (!hasGraphData.value) {
+    message.error('请先创建RBD模型，至少需要开始节点、结束节点和连接路径');
+    return;
+  }
+
+  console.log('🧪 开始算法对比测试');
+
+  comparingAlgorithms.value = true;
+  calculationError.value = '';
+
+  try {
+    const results = await testAlgorithms(
+      props.graphData!,
+      {
+        start: localConfig.value.reliability.startTime,
+        end: localConfig.value.reliability.duration,
+        points: localConfig.value.reliability.dataPoints,
+      },
+      {
+        includeMaintenance:
+          localConfig.value.reliabilityCalc.considerMaintenance,
+        calculationTypes: ['reliability'],
+      },
+    );
+
+    // 保存第一个成功的结果作为主要结果
+    const successfulResult = results.find((r) => r.success);
+    if (successfulResult) {
+      calculationResults.value = successfulResult.result;
+      timeSeriesData.value = generateTimeSeriesData();
+      hasResults.value = true;
+    }
+
+    message.success(
+      `算法对比完成！测试了${results.length}个算法，${results.filter((r) => r.success).length}个成功`,
+    );
+  } catch (error) {
+    console.error('算法对比测试失败:', error);
+    calculationError.value =
+      error instanceof Error ? error.message : '算法对比测试失败';
+    message.error(calculationError.value);
+  } finally {
+    comparingAlgorithms.value = false;
   }
 };
 </script>
@@ -485,6 +584,31 @@ const triggerCalculation = async () => {
     <a-divider orientation="left">计算设置</a-divider>
 
     <a-form layout="vertical">
+      <a-form-item label="计算算法">
+        <a-select
+          v-model:value="selectedAlgorithm"
+          :options="algorithmOptions"
+          placeholder="选择计算算法"
+          style="width: 100%"
+        />
+        <div style="margin-top: 4px; font-size: 12px; color: #666">
+          <div>
+            •
+            <strong>自适应算法</strong>：根据拓扑复杂度自动选择最佳算法（推荐）
+          </div>
+          <div>
+            •
+            <strong>Factoring算法</strong
+            >：精确处理复杂拓扑，包括共享节点和K/N表决
+          </div>
+          <div>
+            •
+            <strong>路径枚举法</strong
+            >：快速计算简单拓扑，适用于无共享节点的结构
+          </div>
+        </div>
+      </a-form-item>
+
       <a-form-item label="计算参数">
         <div style="margin-top: 8px; font-size: 12px; color: #666">
           <div>• 可靠度 R(t)：系统在指定时间内正常工作的概率</div>
@@ -498,18 +622,34 @@ const triggerCalculation = async () => {
 
     <!-- 计算控制区域 -->
     <div style="margin-bottom: 16px; text-align: center">
-      <a-button
-        type="primary"
-        size="large"
-        :disabled="!isConfigValid || !hasGraphData"
-        :loading="calculating"
-        @click="triggerCalculation"
-      >
-        <template #icon>
-          <span>📊</span>
-        </template>
-        {{ calculating ? '计算中...' : '开始计算' }}
-      </a-button>
+      <div style="margin-bottom: 8px">
+        <a-button
+          type="primary"
+          size="large"
+          :disabled="!isConfigValid || !hasGraphData"
+          :loading="calculating"
+          @click="triggerCalculation"
+          style="margin-right: 8px"
+        >
+          <template #icon>
+            <span>📊</span>
+          </template>
+          {{ calculating ? '计算中...' : '开始计算' }}
+        </a-button>
+
+        <a-button
+          type="default"
+          size="large"
+          :disabled="!isConfigValid || !hasGraphData"
+          :loading="comparingAlgorithms"
+          @click="compareAlgorithms"
+        >
+          <template #icon>
+            <span>🧪</span>
+          </template>
+          {{ comparingAlgorithms ? '对比中...' : '算法对比' }}
+        </a-button>
+      </div>
 
       <div
         v-if="!isConfigValid"
@@ -574,6 +714,18 @@ const triggerCalculation = async () => {
           </div>
 
           <div class="result-item">
+            <div class="result-label">故障率 (FPMH)</div>
+            <div class="result-value">
+              {{
+                timeSeriesData[displayTimeIndex]?.failureRate !== undefined &&
+                !isNaN(timeSeriesData[displayTimeIndex]?.failureRate)
+                  ? timeSeriesData[displayTimeIndex]?.failureRate?.toFixed(2)
+                  : 'N/A'
+              }}
+            </div>
+          </div>
+
+          <div class="result-item">
             <div class="result-label">MTBF (小时)</div>
             <div class="result-value">
               {{ timeSeriesData[displayTimeIndex]?.mtbf?.toFixed(4) || 'N/A' }}
@@ -589,7 +741,7 @@ const triggerCalculation = async () => {
           :columns="tableColumns"
           :pagination="{ pageSize: 10, showSizeChanger: true }"
           size="small"
-          :scroll="{ x: 600 }"
+          :scroll="{ x: 740 }"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'time'">
@@ -597,6 +749,13 @@ const triggerCalculation = async () => {
             </template>
             <template v-else-if="column.key === 'reliability'">
               {{ (record.reliability || 0).toFixed(4) }}
+            </template>
+            <template v-else-if="column.key === 'failureRate'">
+              {{
+                record.failureRate !== undefined && !isNaN(record.failureRate)
+                  ? record.failureRate.toFixed(2)
+                  : 'N/A'
+              }}
             </template>
             <template v-else-if="column.key === 'mtbf'">
               {{ (record.mtbf || 0).toFixed(4) }}

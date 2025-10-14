@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VbenFormSchema } from '@vben/common-ui';
-import type { BasicOption } from '@vben/types';
+// import type { BasicOption } from '@vben/types';
 
 import { computed, h, ref } from 'vue';
 
@@ -10,7 +10,7 @@ import { useAccessStore } from '@vben/stores';
 
 import { Image } from 'ant-design-vue';
 
-import OAuth2Login from '#/plugins/oauth2/views/login.vue';
+// import OAuth2Login from '#/plugins/oauth2/views/login.vue';
 import { useAuthStore } from '#/store';
 
 defineOptions({ name: 'Login' });
@@ -64,16 +64,17 @@ defineOptions({ name: 'Login' });
 const authStore = useAuthStore();
 const accessStore = useAccessStore();
 
-const MOCK_USER_OPTIONS: BasicOption[] = [
-  {
-    label: 'Admin',
-    value: 'admin',
-  },
-  {
-    label: 'Test',
-    value: 'test',
-  },
-];
+// 注释掉开发测试用的账号选项
+// const MOCK_USER_OPTIONS: BasicOption[] = [
+//   {
+//     label: 'Admin',
+//     value: 'admin',
+//   },
+//   {
+//     label: 'Test',
+//     value: 'test',
+//   },
+// ];
 
 const imageSrc = ref('');
 const refreshCaptcha = async () => {
@@ -88,41 +89,43 @@ refreshCaptcha();
 
 const formSchema = computed((): VbenFormSchema[] => {
   return [
-    {
-      component: 'VbenSelect',
-      componentProps: {
-        options: MOCK_USER_OPTIONS,
-        placeholder: $t('authentication.selectAccount'),
-      },
-      fieldName: 'selectAccount',
-      label: $t('authentication.selectAccount'),
-      rules: z
-        .string()
-        .min(1, { message: $t('authentication.selectAccount') })
-        .optional()
-        .default('admin'),
-    },
+    // 注释掉账号选择下拉框（开发测试便利功能）
+    // {
+    //   component: 'VbenSelect',
+    //   componentProps: {
+    //     options: MOCK_USER_OPTIONS,
+    //     placeholder: $t('authentication.selectAccount'),
+    //   },
+    //   fieldName: 'selectAccount',
+    //   label: $t('authentication.selectAccount'),
+    //   rules: z
+    //     .string()
+    //     .min(1, { message: $t('authentication.selectAccount') })
+    //     .optional()
+    //     .default('admin'),
+    // },
     {
       component: 'VbenInput',
       componentProps: {
         placeholder: $t('authentication.usernameTip'),
       },
-      dependencies: {
-        trigger(values, form) {
-          if (values.selectAccount) {
-            const findUser = MOCK_USER_OPTIONS.find(
-              (item) => item.value === values.selectAccount,
-            );
-            if (findUser) {
-              form.setValues({
-                password: '123456',
-                username: findUser.value,
-              });
-            }
-          }
-        },
-        triggerFields: ['selectAccount'],
-      },
+      // 注释掉自动填充逻辑
+      // dependencies: {
+      //   trigger(values, form) {
+      //     if (values.selectAccount) {
+      //       const findUser = MOCK_USER_OPTIONS.find(
+      //         (item) => item.value === values.selectAccount,
+      //       );
+      //       if (findUser) {
+      //         form.setValues({
+      //           password: '123456',
+      //           username: findUser.value,
+      //         });
+      //       }
+      //     }
+      //   },
+      //   triggerFields: ['selectAccount'],
+      // },
       fieldName: 'username',
       label: $t('authentication.username'),
       rules: z.string().min(1, { message: $t('authentication.usernameTip') }),
@@ -179,10 +182,15 @@ const formSchema = computed((): VbenFormSchema[] => {
   <AuthenticationLogin
     :form-schema="formSchema"
     :loading="authStore.loginLoading"
+    :show-forget-password="false"
+    :show-code-login="false"
+    :show-qrcode-login="false"
+    :show-third-party-login="false"
     @submit="authStore.authLogin"
   >
-    <template #third-party-login>
+    <!-- 注释掉第三方登录 -->
+    <!-- <template #third-party-login>
       <OAuth2Login />
-    </template>
+    </template> -->
   </AuthenticationLogin>
 </template>

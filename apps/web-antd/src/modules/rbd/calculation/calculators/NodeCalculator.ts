@@ -109,7 +109,11 @@ export class RBDNodeCalculator implements NodeCalculator {
     }
 
     if (nodes.length === 1) {
-      return this.calculateReliability(nodes[0], time);
+      const node = nodes[0];
+      if (!node) {
+        throw new Error('节点无效');
+      }
+      return this.calculateReliability(node, time);
     }
 
     // 如果k=n，使用标准并联公式
@@ -142,7 +146,11 @@ export class RBDNodeCalculator implements NodeCalculator {
     }
 
     if (nodes.length === 1) {
-      return this.calculateReliability(nodes[0], time);
+      const node = nodes[0];
+      if (!node) {
+        throw new Error('节点无效');
+      }
+      return this.calculateReliability(node, time);
     }
 
     // 串联系统：所有组件可靠度相乘

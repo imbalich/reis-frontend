@@ -3,4 +3,5 @@ export interface DistributionStrategy {
   calculatePDF(x: number): number;
   calculateCDF(x: number): number;
   calculateSF(x: number): number;
+  getParams(): Record<string, number>;
 }

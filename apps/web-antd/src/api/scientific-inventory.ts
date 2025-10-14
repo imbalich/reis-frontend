@@ -27,6 +27,7 @@ export interface ScienceWarehouseQueryParams {
   spare_part_code?: string;
   spare_part_name?: string;
   calculation_method?: string;
+  time_range?: string[]; // 创建时间范围 [开始日期, 结束日期]
 }
 
 // API响应类型
@@ -37,7 +38,10 @@ export type ScienceWarehouseListResponse =
 export const getScienceWarehouseListApi = (
   params: ScienceWarehouseQueryParams,
 ): Promise<ScienceWarehouseListResponse> => {
-  return requestClient.get('/api/v1/calcu/science-warehouse/list', { params });
+  return requestClient.get('/api/v1/calcu/science-warehouse/list', {
+    params,
+    paramsSerializer: 'repeat',
+  });
 };
 
 export const getScienceWarehouseDetailApi = (

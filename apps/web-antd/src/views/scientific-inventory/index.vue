@@ -52,6 +52,7 @@ const gridOptions: VxeTableGridOptions<ScienceWarehouseResultDetails> = {
           spare_part_code: formValues.spare_part_code || undefined,
           spare_part_name: formValues.spare_part_name || undefined,
           calculation_method: formValues.calculation_method || undefined,
+          time_range: formValues.time_range || undefined,
         };
 
         return await getScienceWarehouseListApi(params);

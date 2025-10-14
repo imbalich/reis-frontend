@@ -85,6 +85,40 @@ export const createProjectSchema: VbenFormSchema[] = [
   },
 ];
 
+// 编辑项目表单配置（与创建基本相同）
+export const editProjectSchema: VbenFormSchema[] = [
+  {
+    component: 'Input',
+    fieldName: 'name',
+    label: '项目名称',
+    rules: 'required',
+  },
+  {
+    component: 'Textarea',
+    componentProps: {
+      rows: 3,
+      placeholder: '请输入项目描述（可选）',
+    },
+    fieldName: 'description',
+    label: '项目描述',
+  },
+  {
+    component: 'Input',
+    fieldName: 'model',
+    label: '产品型号',
+    rules: 'required',
+  },
+  {
+    component: 'Input',
+    componentProps: {
+      placeholder: '请输入任务类型，如：机破、临修、大修等',
+    },
+    fieldName: 'task_type',
+    label: '任务类型',
+    rules: 'required',
+  },
+];
+
 export function useColumns(
   onActionClick?: OnActionClickFn<RbdProjectResult>,
 ): VxeGridProps['columns'] {

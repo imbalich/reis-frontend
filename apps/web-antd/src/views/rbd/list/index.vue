@@ -3,9 +3,13 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { OnActionClickParams } from '#/adapter/vxe-table';
-import type { CreateRbdProjectParams, RbdProjectResult } from '#/api';
+import type {
+  CreateRbdProjectParams,
+  RbdProjectResult,
+  UpdateRbdProjectBasicInfoParams,
+} from '#/api';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal, VbenButton } from '@vben/common-ui';
@@ -20,9 +24,15 @@ import {
   createRbdProjectApi,
   deleteRbdProjectsApi,
   getRbdProjectsApi,
+  updateRbdProjectBasicInfoApi,
 } from '#/api';
 
-import { createProjectSchema, querySchema, useColumns } from './data';
+import {
+  createProjectSchema,
+  editProjectSchema,
+  querySchema,
+  useColumns,
+} from './data';
 
 const formOptions: VbenFormProps = {
   collapsed: true,
@@ -82,8 +92,7 @@ function onActionClick({ code, row }: OnActionClickParams<RbdProjectResult>) {
       break;
     }
     case 'edit': {
-      // TODO: 实现编辑逻辑
-      message.info('编辑功能待实现');
+      editModalApi.setData(row).open();
       break;
     }
   }
@@ -103,7 +112,7 @@ const [CreateForm, createFormApi] = useVbenForm({
   schema: createProjectSchema,
 });
 
-const modalTitle = computed(() => {
+const createModalTitle = computed(() => {
   return '新建项目';
 });
 
@@ -133,6 +142,60 @@ const [CreateModal, createModalApi] = useVbenModal({
     }
   },
 });
+
+// 编辑项目表单
+const [EditForm, editFormApi] = useVbenForm({
+  layout: 'vertical',
+  showDefaultActions: false,
+  schema: editProjectSchema,
+});
+
+interface FormRbdProjectData extends UpdateRbdProjectBasicInfoParams {
+  id?: number;
+}
+
+const editProjectData = ref<FormRbdProjectData>();
+
+const editModalTitle = computed(() => {
+  return editProjectData.value?.id
+    ? $t('ui.actionTitle.edit', ['项目'])
+    : $t('ui.actionTitle.create', ['项目']);
+});
+
+// 编辑项目模态框
+const [EditModal, editModalApi] = useVbenModal({
+  destroyOnClose: true,
+  async onConfirm() {
+    const { valid } = await editFormApi.validate();
+    if (valid) {
+      editModalApi.lock();
+      const data =
+        await editFormApi.getValues<UpdateRbdProjectBasicInfoParams>();
+      try {
+        if (editProjectData.value?.id) {
+          await updateRbdProjectBasicInfoApi(editProjectData.value.id, data);
+          message.success($t('ui.actionMessage.operationSuccess'));
+        }
+        await editModalApi.close();
+        onRefresh();
+      } catch {
+        message.error('项目更新失败');
+      } finally {
+        editModalApi.unlock();
+      }
+    }
+  },
+  onOpenChange(isOpen) {
+    if (isOpen) {
+      const data = editModalApi.getData<FormRbdProjectData>();
+      editFormApi.resetForm();
+      if (data) {
+        editProjectData.value = data;
+        editFormApi.setValues(data);
+      }
+    }
+  },
+});
 </script>
 
 <template>
@@ -153,8 +216,11 @@ const [CreateModal, createModalApi] = useVbenModal({
         </a>
       </template>
     </Grid>
-    <CreateModal :title="modalTitle">
+    <CreateModal :title="createModalTitle">
       <CreateForm />
     </CreateModal>
+    <EditModal :title="editModalTitle">
+      <EditForm />
+    </EditModal>
   </Page>
 </template>

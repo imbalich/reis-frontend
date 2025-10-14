@@ -2,11 +2,7 @@
 import type { AnalysisOverviewItem } from '@vben/common-ui';
 import type { TabOption } from '@vben/types';
 
-import {
-  AnalysisChartCard,
-  AnalysisChartsTabs,
-  AnalysisOverview,
-} from '@vben/common-ui';
+import { AnalysisChartsTabs, AnalysisOverview } from '@vben/common-ui';
 import {
   SvgBellIcon,
   SvgCakeIcon,
@@ -15,9 +11,6 @@ import {
 } from '@vben/icons';
 
 import AnalyticsTrends from './analytics-trends.vue';
-import AnalyticsVisitsData from './analytics-visits-data.vue';
-import AnalyticsVisitsSales from './analytics-visits-sales.vue';
-import AnalyticsVisitsSource from './analytics-visits-source.vue';
 import AnalyticsVisits from './analytics-visits.vue';
 
 const overviewItems: AnalysisOverviewItem[] = [
@@ -75,7 +68,7 @@ const chartTabs: TabOption[] = [
       </template>
     </AnalysisChartsTabs>
 
-    <div class="mt-5 w-full md:flex">
+    <!-- <div class="mt-5 w-full md:flex">
       <AnalysisChartCard class="mt-5 md:mr-4 md:mt-0 md:w-1/3" title="访问数量">
         <AnalyticsVisitsData />
       </AnalysisChartCard>
@@ -85,6 +78,6 @@ const chartTabs: TabOption[] = [
       <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/3" title="访问来源">
         <AnalyticsVisitsSales />
       </AnalysisChartCard>
-    </div>
+    </div> -->
   </div>
 </template>

@@ -43,7 +43,7 @@ interface SeriesNodeProperties extends BaseNodeProperties {
   maintenance?: MaintenanceParameters; // 修复性维修
 }
 
-// 并联节点属性（实际上是K/N组件系统）
+// 并联节点属性
 interface ParallelNodeProperties extends BaseNodeProperties {
   nodeType: 'parallel';
   name: string; // 用户可编辑
@@ -53,7 +53,7 @@ interface ParallelNodeProperties extends BaseNodeProperties {
   maintenance?: MaintenanceParameters; // 修复性维修
 }
 
-// K/N逻辑节点属性（链路级别的K/N系统）
+// K/N逻辑节点属性（表决模型）
 interface KNNodeProperties extends BaseNodeProperties {
   nodeType: 'kn';
   k: number; // 维持数量

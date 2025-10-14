@@ -78,6 +78,16 @@ export const querySchema: VbenFormSchema[] = [
       ],
     },
   },
+  {
+    component: 'RangePicker',
+    fieldName: 'time_range',
+    label: '创建时间',
+    componentProps: {
+      format: 'YYYY-MM-DD',
+      showTime: true,
+      valueFormat: 'YYYY-MM-DD',
+    },
+  },
 ];
 
 // 表格列配置
