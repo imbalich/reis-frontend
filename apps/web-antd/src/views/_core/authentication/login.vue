@@ -179,15 +179,8 @@ const formSchema = computed((): VbenFormSchema[] => {
 </script>
 
 <template>
-  <AuthenticationLogin
-    :form-schema="formSchema"
-    :loading="authStore.loginLoading"
-    :show-forget-password="false"
-    :show-code-login="false"
-    :show-qrcode-login="false"
-    :show-third-party-login="false"
-    @submit="authStore.authLogin"
-  >
+  <AuthenticationLogin :form-schema="formSchema" :loading="authStore.loginLoading" :show-forget-password="false"
+    :show-code-login="false" :show-qrcode-login="false" :show-third-party-login="false" @submit="authStore.authLogin">
     <!-- 注释掉第三方登录 -->
     <!-- <template #third-party-login>
       <OAuth2Login />
