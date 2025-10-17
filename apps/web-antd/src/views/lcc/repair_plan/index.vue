@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { message, Modal } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { createEqualLifeApi, getEqualLifeApi } from '#/api';
+import { getRepairPlanApi } from '#/api';
 
 import { columns, schema } from './data';
 
@@ -13,15 +13,14 @@ const [Form, formApi] = useVbenForm({
   layout: 'horizontal',
   showDefaultActions: false,
   schema,
-  wrapperClass: 'grid grid-cols-5 gap-4',
+  wrapperClass: 'grid grid-cols-3 gap-4',
 });
 
 // 数据
-const original_img = ref('');
-const optimize_img = ref('');
 const tableData = ref();
-const equal_lifetime_t = ref(0);
+const ratio = ref();
 const loading = ref(false);
+const model = ref();
 
 // 处理提交逻辑
 const handleSubmit = async () => {
@@ -30,35 +29,17 @@ const handleSubmit = async () => {
     const { valid } = await formApi.validate();
     if (!valid) return;
     const formValues = await formApi.getValues();
-
     if (formValues.parts) {
       formValues.parts = Object.values(formValues.parts);
     }
-    // 提交查询
-    const res = await getEqualLifeApi(formValues);
-    if (res && res.result && res.result.length > 0) {
-      tableData.value = res.result;
-      original_img.value = `data:image/png;base64,${res.img_original_result}`;
-      optimize_img.value = `data:image/png;base64,${res.img_optimize_result}`;
-      equal_lifetime_t.value = res.equal_lifetime_t;
-      if (!equal_lifetime_t.value) {
-        Modal.info({
-          title: '提示',
-          content: '未找到等寿命点，保证所有部件在t0时刻均大于目标值R(t)',
-          okText: '确定',
-          centered: true, // 居中显示
-          onOk() {},
-        });
-      }
-      message.success('成功请求到数据');
-    } else {
-      // 数据不匹配，触发POST生成
-      await createEqualLifeApi(formValues);
-      message.info('请求已发送，请等待几分钟再查询');
-      tableData.value = [];
-    }
+
+    const res = await getRepairPlanApi(formValues);
+    tableData.value = res.result;
+    ratio.value = res.ratio;
+    model.value = formValues.model;
+    message.success('数据请求成功');
   } catch {
-    tableData.value = [];
+    message.error('数据请求失败');
   } finally {
     loading.value = false;
   }
@@ -80,7 +61,7 @@ const gridOptions = {
   pagerConfig: {
     enabled: false,
   },
-  height: 400,
+  height: 350,
   // maxHeight: 200,
   exportConfig: {},
   printConfig: {},
@@ -132,24 +113,11 @@ watch([tableData, loading], () => {
       <Grid />
     </div>
     <!-- 图形展示区 -->
-    <div class="mt-4 flex w-full space-x-4" style="height: 440px">
+    <div class="mt-4 flex w-full space-x-4">
       <a-card style="flex: 1; min-width: 0">
-        <img
-          v-if="original_img"
-          :src="original_img"
-          alt="优化前各部件寿命曲线图"
-          style="display: block; width: 90%; margin: 0 auto"
-        />
-      </a-card>
-      <a-card style="flex: 1; min-width: 0">
-        <img
-          v-if="optimize_img"
-          :src="optimize_img"
-          alt="优化后各部件寿命曲线图"
-          style="display: block; width: 90%; margin: 0 auto"
-        />
+        与现行维修方案相比，{{ model }}最优维修方案下，经济指标提升
+        <b>{{ ratio }}</b> %。
       </a-card>
     </div>
-    <div class="mt-4 w-full"></div>
   </div>
 </template>

@@ -52,14 +52,10 @@ export const querySchema: VbenFormSchema[] = [
           const res = await getDmFaultLocationByModelApi({
             product_model: params.model,
           });
-          return res.map((item: string) => {
-            const match = item.match(/（(.*?)）/);
-            const part = match ? match[1] : '';
-            return {
-              label: item,
-              value: part,
-            };
-          });
+          return res.map((item: string) => ({
+            label: `${item[0]}(${item[1]})`,
+            value: item[0],
+          }));
         },
         params: {
           model: values.model,

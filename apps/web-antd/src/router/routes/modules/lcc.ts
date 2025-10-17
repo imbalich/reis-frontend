@@ -37,6 +37,15 @@ const routes: RouteRecordRaw[] = [
           icon: 'ant-design:line-chart-outlined',
         },
       },
+      {
+        name: 'repair_plan',
+        path: '/lcc/repair_plan',
+        component: () => import('#/views/lcc/repair_plan/index.vue'),
+        meta: {
+          title: '维修方案制定',
+          icon: 'ant-design:line-chart-outlined',
+        },
+      },
     ],
   },
 ];

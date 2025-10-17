@@ -55,6 +55,18 @@ export interface LccCycleLifeRes {
   router?: string;
 }
 
+export interface lccRepairPlanParams {
+  model?: string;
+  parts?: string[];
+  is_ai?: boolean;
+}
+
+export interface LccRepairPlanRes {
+  model: string;
+  result: string[];
+  ratio: number;
+}
+
 export function getRessignListApi(params: LccAssignParams) {
   return requestClient.get<LccAssignRes>('/api/v1/lcc/assign', {
     params,
@@ -80,4 +92,11 @@ export function getCycleLifeListApi(params: LccCycleLifeParams) {
       paramsSerializer: 'repeat',
     },
   );
+}
+
+export function getRepairPlanApi(params: lccRepairPlanParams) {
+  return requestClient.get<LccRepairPlanRes>('/api/v1/lcc/repair_plan', {
+    params,
+    paramsSerializer: 'repeat',
+  });
 }

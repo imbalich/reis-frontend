@@ -20,7 +20,7 @@ export interface DmFailureRes {
   product_model: string;
   fault_location: string;
   fault_material_code: string;
-  product_lifetime_stage: string;
+  product_lifetime_stage?: string;
   product_number: string;
   fault_type: string;
   fault_mode: string;
