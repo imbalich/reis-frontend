@@ -19,7 +19,7 @@ export default class Lognormal3P extends baseMS {
     if (x <= this.gamma) return 0; // x 必须大于 gamma
     const z = (Math.log(x - this.gamma) - this.mu) / this.sigma;
     return (
-      (1 / (this.sigma * Math.log(x - this.gamma) * Math.sqrt(2 * Math.PI))) *
+      (1 / (this.sigma * (x - this.gamma) * Math.sqrt(2 * Math.PI))) *
       Math.exp(-0.5 * z * z)
     );
   }

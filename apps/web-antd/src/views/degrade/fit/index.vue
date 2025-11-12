@@ -102,13 +102,13 @@ const handleReset = () => {
           <a-form-item label="置信水平"> 95% </a-form-item>
           <a-divider />
           <a-form-item label="失效时间（预测）">
-            {{ currentFunction?.t_failure }}（小时）
+            {{ currentFunction?.t_failure }}（年）
           </a-form-item>
           <a-form-item label="失效区间（预测）">
-            {{ currentFunction?.failure_interval }}（小时）
+            {{ currentFunction?.failure_interval }}（年）
           </a-form-item>
           <a-form-item label="剩余时长（预测）">
-            {{ currentFunction?.difference }}（小时）
+            {{ currentFunction?.difference }}（年）
           </a-form-item>
           <span style="color: #e66">
             注意：若选择了“产品编号”，请填写“失效阈值”，否则无法输出结果!
@@ -116,5 +116,6 @@ const handleReset = () => {
         </a-form>
       </a-card>
     </div>
+    <div class="mt-4 w-full"></div>
   </div>
 </template>

@@ -1,16 +1,18 @@
+import * as math from 'mathjs';
+
 import { baseAB } from '#/custom/weibull/strategies';
 
 export default class Gamma2P extends baseAB {
   // 构造函数
   calculateCDF(x: number): number {
     const z = this.scaledX(x);
-    return baseAB.lowerGamma(this.beta, z) / baseAB.gamma1(this.beta);
+    return baseAB.lowerGamma(this.beta, z) / math.gamma(this.beta);
   }
 
   calculatePDF(x: number): number {
     const z = this.scaledX(x);
     const numerator = z ** (this.beta - 1) * Math.exp(-z);
-    const denominator = this.alpha * baseAB.gamma1(this.beta);
+    const denominator = this.alpha * math.gamma(this.beta);
     return numerator / denominator;
   }
 

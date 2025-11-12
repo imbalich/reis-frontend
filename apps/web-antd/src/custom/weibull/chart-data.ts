@@ -4,10 +4,14 @@ const ChartData = {
   // 获取PDF数据
   getChartData(strategy: DistributionStrategy, funcType: string) {
     const points = [];
-    const xMax = 400_000;
+    const xMax = 200_000;
 
-    for (let x = 0; x <= xMax; x += xMax / 40_000) {
-      const y = this.calculateFunction(strategy, funcType, x);
+    for (let x = 1000; x <= xMax; x += xMax / 20_000) {
+      let y = this.calculateFunction(strategy, funcType, x);
+      if (funcType === 'PDF') {
+        y *= 1_000_000;
+      }
+      // console.log('y', y);
       points.push([x, y]);
     }
 

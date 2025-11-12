@@ -1,7 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getDmFailureModelApi, getDmFaultLocationByModelApi } from '#/api';
+import { getDmLccRessignByModelApi, getEqualLifetimeModelApi } from '#/api';
 
 /**
  * 查询表单配置
@@ -17,7 +17,7 @@ export const similarProductSchema: VbenFormSchema[] = [
       showSearch: true, // 显示搜索框
       class: 'w-full', // w-full 表示组件宽度 100% 铺满容器
       api: async () => {
-        const res = await getDmFailureModelApi();
+        const res = await getEqualLifetimeModelApi();
         return res.map((item: string) => ({
           label: item,
           value: item,
@@ -29,13 +29,15 @@ export const similarProductSchema: VbenFormSchema[] = [
     component: 'ApiSelect',
     fieldName: 'part',
     label: '零部件名称',
-    rules: 'required',
+    // rules: 'required',
     dependencies: {
       triggerFields: ['model'],
       componentProps: (values) => ({
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        mode: 'multiple',
+        maxTagCount: 2, // 显示所有选中的值
         // 添加 filterOption 配置，输入框匹配名称
         filterOption: (input: string, option: any) => {
           return (
@@ -46,8 +48,8 @@ export const similarProductSchema: VbenFormSchema[] = [
         api: async (params: any) => {
           // params.product_model 就是依赖字段
           if (!params?.model) return [];
-          const res = await getDmFaultLocationByModelApi({
-            product_model: params.model,
+          const res = await getDmLccRessignByModelApi({
+            model: params.model,
           });
           return res.map((item: string) => ({
             label: `${item[0]}(${item[1]})`,
@@ -86,7 +88,7 @@ export const generateBatchFormItems = (timestamp: number): VbenFormSchema[] => [
       showSearch: true,
       class: 'w-full',
       api: async () => {
-        const res = await getDmFailureModelApi();
+        const res = await getEqualLifetimeModelApi();
         return res.map((item: string) => ({
           label: item,
           value: item,
@@ -98,13 +100,15 @@ export const generateBatchFormItems = (timestamp: number): VbenFormSchema[] => [
     component: 'ApiSelect',
     fieldName: `part_${timestamp}`,
     label: '零部件名称',
-    rules: 'required',
+    // rules: 'required',
     dependencies: {
       triggerFields: [`model_${timestamp}`],
       componentProps: (values) => ({
         allowClear: true,
         showSearch: true,
         class: 'w-full',
+        mode: 'multiple',
+        maxTagCount: 2, // 显示所有选中的值
         // 添加 filterOption 配置，输入框匹配名称
         filterOption: (input: string, option: any) => {
           return (
@@ -114,8 +118,8 @@ export const generateBatchFormItems = (timestamp: number): VbenFormSchema[] => [
         },
         api: async (params: any) => {
           if (!params?.[`model_${timestamp}`]) return [];
-          const res = await getDmFaultLocationByModelApi({
-            product_model: params[`model_${timestamp}`],
+          const res = await getDmLccRessignByModelApi({
+            model: params[`model_${timestamp}`],
           });
           return res.map((item: string) => ({
             label: `${item[0]}(${item[1]})`,

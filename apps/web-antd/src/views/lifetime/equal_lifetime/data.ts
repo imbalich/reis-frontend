@@ -124,9 +124,9 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'need_optimization',
-    title: '是否需要优化',
+    title: '建议',
     formatter: ({ row }) => {
-      return row.need_optimization ? '是' : '否';
+      return row.need_optimization ? '优化' : '不优化';
     },
   },
 ];

@@ -24,7 +24,7 @@ const formOptions: VbenFormProps = {
 const loadChildren = async ({ row }: { row: any }) => {
   const params: DmEbomParams = {
     partid: row.id,
-    level1: (row.level1 ?? 0) + 1,
+    level1: +(row.level1 ?? 0) + 1,
   };
   const res = await getDmEbomListApi(params);
   res.items.forEach((item: any) => {

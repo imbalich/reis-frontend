@@ -28,6 +28,7 @@ export interface LccAssignRes {
   n1: number;
   n2: number;
   parts_detail: lccAssignResult[];
+  lirun_ratio: number;
 }
 
 export interface LccAssignCompareRes {
@@ -67,8 +68,19 @@ export interface LccRepairPlanRes {
   ratio: number;
 }
 
+export interface DmLCCParams {
+  model?: string;
+}
+
 export function getRessignListApi(params: LccAssignParams) {
   return requestClient.get<LccAssignRes>('/api/v1/lcc/assign', {
+    params,
+    paramsSerializer: 'repeat',
+  });
+}
+
+export function getDmLccRessignByModelApi(params: DmLCCParams) {
+  return requestClient.get(`/api/v1/lcc/assign/get_parts`, {
     params,
     paramsSerializer: 'repeat',
   });
@@ -94,8 +106,22 @@ export function getCycleLifeListApi(params: LccCycleLifeParams) {
   );
 }
 
+export function getDmLccCycleLifeByModelApi(params: DmLCCParams) {
+  return requestClient.get(`/api/v1/lcc/cycle_life/get_parts`, {
+    params,
+    paramsSerializer: 'repeat',
+  });
+}
+
 export function getRepairPlanApi(params: lccRepairPlanParams) {
   return requestClient.get<LccRepairPlanRes>('/api/v1/lcc/repair_plan', {
+    params,
+    paramsSerializer: 'repeat',
+  });
+}
+
+export function getDmLccRepairPlanByModelApi(params: DmLCCParams) {
+  return requestClient.get(`/api/v1/lcc/repair_plan/get_parts`, {
     params,
     paramsSerializer: 'repeat',
   });

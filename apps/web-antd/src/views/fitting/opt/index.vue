@@ -89,11 +89,11 @@ const handleReset = () => {
           style="display: flex; align-items: center; padding-left: 42px"
         >
           <span style="min-width: 27%">
-            <b>最佳更换时间：</b>{{ Math.round(resultData[0]) }}（小时）
+            <b>最佳更换时间：</b>{{ resultData[0] }}（年）
           </span>
           <span style="min-width: 25%">
             <b>单位时间内的最低成本：</b>
-            {{ (Math.round(resultData[0]) * resultData[1]).toFixed(1) }}（元）
+            {{ resultData[1].toFixed(1) }}（元）
           </span>
         </div>
         <div v-else style="color: #aaa; text-align: left">
@@ -136,5 +136,6 @@ const handleReset = () => {
         />
       </a-card>
     </div>
+    <div class="mt-4 w-full"></div>
   </div>
 </template>

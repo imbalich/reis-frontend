@@ -1,7 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getEqualLifetimeModelApi, getEqualLifetimePartsApi } from '#/api';
+import { getDmLccRepairPlanByModelApi, getEqualLifetimeModelApi } from '#/api';
 
 export const schema: VbenFormSchema[] = [
   {
@@ -26,6 +26,7 @@ export const schema: VbenFormSchema[] = [
     component: 'ApiSelect',
     fieldName: 'parts',
     label: '零部件',
+    rules: 'required',
     dependencies: {
       triggerFields: ['model'],
       componentProps: (values) => ({
@@ -44,7 +45,7 @@ export const schema: VbenFormSchema[] = [
         api: async (params: any) => {
           // params.model 就是依赖字段
           if (!params?.model) return [];
-          const res = await getEqualLifetimePartsApi({
+          const res = await getDmLccRepairPlanByModelApi({
             model: params.model,
           });
           return res.map((item: string) => ({
@@ -70,6 +71,7 @@ export const schema: VbenFormSchema[] = [
         { label: '是', value: true },
         { label: '否', value: false },
       ],
+      defaultValue: false,
     },
   },
 ];
@@ -90,11 +92,11 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'year_new',
-    title: '最优维修周期（年）',
+    title: '推荐维修周期（年）',
   },
   {
     field: 'level_new',
-    title: '最优维修周期',
+    title: '推荐维修周期',
   },
   {
     field: 'sf',
@@ -102,6 +104,6 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'lcc_result',
-    title: '结论',
+    title: '建议',
   },
 ];

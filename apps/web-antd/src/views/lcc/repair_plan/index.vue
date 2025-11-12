@@ -115,9 +115,10 @@ watch([tableData, loading], () => {
     <!-- 图形展示区 -->
     <div class="mt-4 flex w-full space-x-4">
       <a-card style="flex: 1; min-width: 0">
-        与现行维修方案相比，{{ model }}最优维修方案下，经济指标提升
+        <b>建议：</b>与现行维修方案相比，{{ model }}推荐维修方案下，经济指标提升
         <b>{{ ratio }}</b> %。
       </a-card>
     </div>
+    <div class="mt-4 w-full"></div>
   </div>
 </template>
