@@ -104,7 +104,7 @@ export const columns: VxeGridProps['columns'] = [
   { field: 'warehouse_name', title: '库房名称', width: 150 },
   { field: 'spare_part_code', title: '备品编码', width: 150 },
   { field: 'spare_part_name', title: '备品名称', width: 150 },
-  { field: 'required_quantity', title: '需求数量', width: 120 },
+  { field: 'required_quantity', title: '最小备件数量', width: 120 },
   { field: 'calculation_method', title: '计算方法', width: 120 },
   { field: 'time_interval_days', title: '时间间隔（天）', width: 130 },
   { field: 'input_date', title: '计算截止日期', width: 130 },

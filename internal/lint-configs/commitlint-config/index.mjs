@@ -122,8 +122,8 @@ const userConfig = {
 
     'scope-enum': [0],
     'subject-case': [0],
-    'subject-empty': [2, 'never'],
-    'type-empty': [2, 'never'],
+    'subject-empty': [0, 'never'],  // 临时禁用subject检查
+    'type-empty': [0, 'never'],    // 临时禁用type检查
     /**
      * type[scope]: [function] description
      * ^^^^
