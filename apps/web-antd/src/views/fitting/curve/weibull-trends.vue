@@ -10,10 +10,6 @@ import { EchartsUI, useEcharts } from '@vben/plugins/echarts';
 
 import chartData from '#/custom/weibull/chart-data';
 
-const TOTAL_YEARS = 30;
-const MONTHS_PER_YEAR = 12;
-const TOTAL_MONTHS = TOTAL_YEARS * MONTHS_PER_YEAR;
-
 const props = defineProps<{
   funcType: string;
   strategy: DistributionStrategy;
@@ -26,23 +22,24 @@ const chartPoints = computed<ChartPoint[]>(() =>
   chartData.getChartData(props.strategy, props.funcType.toUpperCase()),
 );
 
+const formatYearLabel = (monthIndex: number) =>
+  `第${Math.floor(monthIndex / 12) + 1}年`;
+
 const formatYearMonth = (monthIndex: number) => {
-  if (monthIndex >= TOTAL_MONTHS) {
-    return `第${TOTAL_YEARS}年12月`;
-  }
-  const year = Math.floor(monthIndex / MONTHS_PER_YEAR) + 1;
-  const month = (monthIndex % MONTHS_PER_YEAR) + 1;
+  const year = Math.floor(monthIndex / 12) + 1;
+  const month = (monthIndex % 12) + 1;
   return `第${year}年${month}月`;
 };
 
-const xLabels = computed(() =>
-  chartPoints.value.map((point) => formatYearMonth(point.monthIndex)),
+const xAxisData = computed(() =>
+  chartPoints.value.map((point) => point.monthIndex),
 );
 
 const seriesData = computed(() =>
   chartPoints.value.map((point) => ({
     value: point.value,
     hours: point.hours,
+    monthIndex: point.monthIndex,
   })),
 );
 
@@ -62,11 +59,11 @@ const yAxisName = computed(() => {
 const renderChart = () => {
   renderEcharts({
     grid: {
-      bottom: 30,
+      bottom: 45,
       containLabel: true,
-      left: '3%',
-      right: '3%',
-      top: '8%',
+      left: '4%',
+      right: '4%',
+      top: 20,
     },
     series: [
       {
@@ -95,21 +92,32 @@ const renderChart = () => {
           return '';
         }
         const hours = point?.data?.hours ?? '';
-        const label = xLabels.value?.[point.dataIndex] ?? '';
+        const monthIndex = point?.data?.monthIndex ?? 0;
+        const label = formatYearMonth(monthIndex);
         const value = point?.data?.value ?? '';
         return `${label}<br/>累计运行时间：${hours} 小时<br/>${yAxisName.value}：${value}`;
       },
     },
     xAxis: {
       axisLabel: {
-        formatter: (_: string, index: number) => xLabels.value[index] ?? '',
+        formatter: (_: string, index: number) => {
+          const monthIndex = chartPoints.value[index]?.monthIndex ?? 0;
+          const month = (monthIndex % 12) + 1;
+          if (month === 1 || index === 0) {
+            return formatYearLabel(monthIndex);
+          }
+          return '';
+        },
         rotate: 45,
       },
       axisTick: {
         show: false,
       },
       boundaryGap: false,
-      data: xLabels.value,
+      data: xAxisData.value,
+      name: '累计运行时间（年）',
+      nameGap: 35,
+      nameLocation: 'middle',
       splitLine: {
         lineStyle: {
           type: 'solid',
@@ -118,12 +126,10 @@ const renderChart = () => {
         show: true,
       },
       type: 'category',
-      name: '累计运行时间（第 x 年 y 月）',
-      nameLocation: 'middle',
-      nameGap: 40,
       nameTextStyle: {
         color: '#333',
         fontSize: 14,
+        padding: [20, 0, 0, 0],
       },
     },
     yAxis: [
@@ -137,11 +143,13 @@ const renderChart = () => {
         splitNumber: 4,
         type: 'value',
         name: yAxisName.value,
-        nameLocation: 'start',
-        nameGap: -260,
+        nameLocation: 'middle',
+        nameGap: 35,
+        nameRotate: 90,
         nameTextStyle: {
           color: '#333',
           fontSize: 14,
+          padding: [0, 0, 0, 30],
         },
       },
     ],
@@ -153,6 +161,5 @@ watch([() => props.strategy, () => props.funcType], renderChart);
 </script>
 
 <template>
-  <EchartsUI ref="chartRef" />
+  <EchartsUI ref="chartRef" style="height: 360px" />
 </template>
-
