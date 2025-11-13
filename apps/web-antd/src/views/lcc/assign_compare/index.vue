@@ -86,10 +86,10 @@ const processFormData = (formValues: Record<string, any>, plan: string) => {
   }>;
 
   // 处理原始的产品型号和零部件
-  if (formValues.model && formValues.part) {
+  if (formValues.model || formValues.part) {
     itemsList.push({
       model: formValues.model,
-      part: formValues.part,
+      part: formValues.part || '',
       part_number: formValues.model,
     });
   }
@@ -105,7 +105,7 @@ const processFormData = (formValues: Record<string, any>, plan: string) => {
     if (formValues[partKey]) {
       itemsList.push({
         model: formValues[modelKey],
-        part: formValues[partKey],
+        part: formValues[partKey] || '',
         part_number: formValues.model,
       });
     }
@@ -337,11 +337,12 @@ watch([tableData, loading], () => {
     <!-- 下方表格结果 -->
     <div class="mt-4 flex w-full space-x-4" style="height: 450px">
       <a-card
-        title="基于经济型评估的可靠性指标分配"
+        title="多设计方案可靠性经济性对比分析结果"
         style="flex: 1; min-width: 0"
       >
         <Grid />
       </a-card>
     </div>
+    <div class="mt-4 w-full"></div>
   </div>
 </template>

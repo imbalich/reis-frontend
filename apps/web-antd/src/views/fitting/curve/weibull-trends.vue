@@ -37,14 +37,32 @@ const yData = computed(() =>
     .filter((y): y is number => typeof y === 'number'),
 );
 
+// 根据 funcType 计算 Y 轴标题
+const yAxisName = computed(() => {
+  switch (props.funcType.toUpperCase()) {
+    case 'CDF': {
+      return '不可靠度';
+    }
+    case 'PDF': {
+      return 'λ(t)×10⁶';
+    }
+    case 'SF': {
+      return '可靠度';
+    }
+    default: {
+      return '';
+    }
+  }
+});
+
 const renderChart = () => {
   renderEcharts({
     grid: {
       bottom: 30,
       containLabel: true,
-      left: '1%',
+      left: '2%',
       right: '1%',
-      top: '2%',
+      top: '7%',
     },
     series: [
       {
@@ -101,6 +119,13 @@ const renderChart = () => {
         },
         splitNumber: 4,
         type: 'value',
+        name: yAxisName.value,
+        nameLocation: 'start',
+        nameGap: -300,
+        nameTextStyle: {
+          color: '#333',
+          fontSize: 14,
+        },
       },
     ],
   });

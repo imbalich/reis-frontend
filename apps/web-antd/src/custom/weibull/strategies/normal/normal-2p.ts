@@ -2,6 +2,7 @@ import { baseMS } from '#/custom/weibull/strategies';
 
 export default class Normal2P extends baseMS {
   // 构造函数
+
   calculateCDF(x: number): number {
     const z = (x - this.mu) / this.sigma;
     return baseMS.standardNormalCDF(z);

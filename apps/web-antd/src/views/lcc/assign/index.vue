@@ -69,14 +69,14 @@ const processFormData = (formValues: Record<string, any>) => {
   const itemsList = [] as Array<{
     model: string;
     part: string;
-    part_number: number;
+    part_number: string;
   }>;
 
   // 处理原始的产品型号和零部件
-  if (formValues.model && formValues.part) {
+  if (formValues.model || formValues.part) {
     itemsList.push({
       model: formValues.model,
-      part: formValues.part,
+      part: formValues.part || '',
       part_number: formValues.model,
     });
   }
@@ -92,7 +92,7 @@ const processFormData = (formValues: Record<string, any>) => {
     if (formValues[partKey]) {
       itemsList.push({
         model: formValues[modelKey],
-        part: formValues[partKey],
+        part: formValues[partKey] || '',
         part_number: formValues.model,
       });
     }
@@ -241,28 +241,41 @@ watch([tableData, loading], () => {
       <!-- 评估结果展示区 -->
       <a-card title="可靠性评估结果" style="width: 450px">
         <a-form>
-          <a-form-item label="结论1">
-            保质期内故障率最大值为[<b>{{ tableData?.fpmh_pre }} </b>]，
-            {{ tableData?.fpmh_result ? '满足用户要求' : '不满足用户要求' }}
+          <a-form-item label="建议1">
+            根据相似产品故障率变化趋势推测，质保期内故障率最大值为[
+            <b>{{ tableData?.fpmh_pre }} </b>
+            ]，
+            {{
+              tableData?.fpmh_result
+                ? '满足FPMH(用户)要求'
+                : '不满足FPMH(用户)要求'
+            }}
           </a-form-item>
           <a-divider />
-          <a-form-item label="结论2">
-            订单数量大于[<b>{{ tableData?.n1 }} </b>]台才不会亏损
+          <a-form-item label="建议2">
+            根据相似产品故障率变化趋势推和维修费用计算，建议销售本产品数量大于[
+            <b>{{ tableData?.n1 }} </b>
+            ]台，可实现盈亏平衡。
           </a-form-item>
           <a-divider />
-          <a-form-item label="结论3">
-            订单数量需大于[<b>{{ tableData?.n2 }} </b>]台才能实现利润目标
+          <a-form-item label="建议3">
+            根据相似产品故障率变化趋势推和维修费用计算，建议销售本产品数量大于[
+            <b>{{ tableData?.n2 }} </b>
+            ]台，可实现[
+            <b>{{ tableData?.lirun_ratio }}</b>
+            ]% 利润目标。
           </a-form-item>
         </a-form>
         <!-- <div v-else>暂无数据</div> -->
       </a-card>
       <!-- 指标分配区域 -->
       <a-card
-        title="基于经济型评估的可靠性指标分配"
+        title="基于经济性评估的可靠性指标分配"
         style="flex: 1; min-width: 0"
       >
         <Grid />
       </a-card>
     </div>
+    <div class="mt-4 w-full"></div>
   </div>
 </template>

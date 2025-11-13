@@ -18,13 +18,12 @@ export interface DmEbomRes {
   prd_name?: string;
   bl_quantity?: string;
   prd_level?: string;
-  y8_knowledgeno?: string;
-  attach_dept?: string;
-  y8_configurationcode?: string;
-  y8_isbh?: string;
-  y8_matdescs: string;
-  item_id: string;
+  y8_matname: string;
+  y8_matbnum1: string;
   state_now?: string;
+  sync_time?: string;
+  prd_code?: string;
+  prd_vision?: string;
 }
 
 export function getDmEbomListApi(params: DmEbomParams) {

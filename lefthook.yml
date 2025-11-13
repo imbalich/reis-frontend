@@ -65,10 +65,10 @@ pre-commit:
       run: pnpm prettier --cache --write --parser json {staged_files}
       glob: '{!(package)*.json,*.code-snippets,.!(browserslist)*rc}'
 
-post-merge:
-  commands:
-    install:
-      run: pnpm install
+# post-merge:
+#   commands:
+#     install:
+#       run: pnpm install
 # commit-msg:
 #   commands:
 #     commitlint:

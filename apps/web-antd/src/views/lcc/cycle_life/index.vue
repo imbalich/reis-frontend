@@ -79,10 +79,10 @@ const processFormData = (formValues: Record<string, any>) => {
   const itemsList = [] as Array<{ model: string; part: string }>;
 
   // 处理原始的产品型号和零部件
-  if (formValues.model && formValues.part) {
+  if (formValues.model || formValues.part) {
     itemsList.push({
       model: formValues.model,
-      part: formValues.part,
+      part: formValues.part || '',
     });
   }
 
@@ -97,7 +97,7 @@ const processFormData = (formValues: Record<string, any>) => {
     if (formValues[partKey]) {
       itemsList.push({
         model: formValues[modelKey],
-        part: formValues[partKey],
+        part: formValues[partKey] || '',
       });
     }
   });
@@ -199,5 +199,6 @@ watch([tableData, loading], () => {
     <div class="mt-4 w-full">
       <Grid />
     </div>
+    <div class="mt-4 w-full"></div>
   </div>
 </template>

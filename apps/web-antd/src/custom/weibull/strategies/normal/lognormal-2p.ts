@@ -10,8 +10,7 @@ export default class Lognormal2P extends baseMS {
   calculatePDF(x: number): number {
     const z = (Math.log(x) - this.mu) / this.sigma;
     return (
-      (1 / (this.sigma * Math.log(x) * Math.sqrt(2 * Math.PI))) *
-      Math.exp(-0.5 * z * z)
+      (1 / (this.sigma * x * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z)
     );
   }
 

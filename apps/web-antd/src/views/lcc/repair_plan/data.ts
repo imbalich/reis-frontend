@@ -1,7 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getEqualLifetimeModelApi, getEqualLifetimePartsApi } from '#/api';
+import { getDmLccRepairPlanByModelApi, getEqualLifetimeModelApi } from '#/api';
 
 export const schema: VbenFormSchema[] = [
   {
@@ -26,6 +26,7 @@ export const schema: VbenFormSchema[] = [
     component: 'ApiSelect',
     fieldName: 'parts',
     label: '零部件',
+    rules: 'required',
     dependencies: {
       triggerFields: ['model'],
       componentProps: (values) => ({
@@ -44,7 +45,7 @@ export const schema: VbenFormSchema[] = [
         api: async (params: any) => {
           // params.model 就是依赖字段
           if (!params?.model) return [];
-          const res = await getEqualLifetimePartsApi({
+          const res = await getDmLccRepairPlanByModelApi({
             model: params.model,
           });
           return res.map((item: string) => ({
@@ -59,36 +60,18 @@ export const schema: VbenFormSchema[] = [
     },
   },
   {
-    component: 'InputNumber',
-    fieldName: 'target_sf',
-    label: '目标值(R(t))',
+    component: 'ApiSelect',
+    fieldName: 'is_ai',
+    label: '是否考虑可用度',
     componentProps: {
-      min: 0,
-      max: 1,
-      step: 0.01,
-      defaultValue: 0.95,
-    },
-  },
-  {
-    component: 'InputNumber',
-    fieldName: 'step_start',
-    label: '区间起点(R(t))',
-    componentProps: {
-      min: 0,
-      max: 1,
-      step: 0.01,
-      defaultValue: 0.95,
-    },
-  },
-  {
-    component: 'InputNumber',
-    fieldName: 'step_end',
-    label: '区间终点(R(t))',
-    componentProps: {
-      min: 0,
-      max: 1,
-      step: 0.01,
-      defaultValue: 0.99,
+      allowClear: true,
+      showSearch: true, // 显示搜索框
+      class: 'w-full', // w-full 表示组件宽度 100% 铺满容器
+      api: async () => [
+        { label: '是', value: true },
+        { label: '否', value: false },
+      ],
+      defaultValue: false,
     },
   },
 ];
@@ -104,29 +87,23 @@ export const columns: VxeGridProps['columns'] = [
     title: '物料编码',
   },
   {
-    field: 'original_pdf',
-    title: '优化前FPMH(t0)',
+    field: 'level_old',
+    title: '原维修周期',
   },
   {
-    field: 'optimized_pdf',
-    title: '优化后FPMH(t0)',
-    formatter: ({ cellValue }) => cellValue ?? '---',
+    field: 'year_new',
+    title: '推荐维修周期（年）',
   },
   {
-    field: 'original_equal_point_pdf',
-    title: '优化前FPMH(t)',
-    formatter: ({ cellValue }) => cellValue ?? '---',
+    field: 'level_new',
+    title: '推荐维修周期',
   },
   {
-    field: 'optimized_equal_point_pdf',
-    title: '优化后FPMH(t)',
-    formatter: ({ cellValue }) => cellValue ?? '---',
+    field: 'sf',
+    title: '对应可靠度/可靠寿命',
   },
   {
-    field: 'need_optimization',
+    field: 'lcc_result',
     title: '建议',
-    formatter: ({ row }) => {
-      return row.need_optimization ? '优化' : '不优化';
-    },
   },
 ];
