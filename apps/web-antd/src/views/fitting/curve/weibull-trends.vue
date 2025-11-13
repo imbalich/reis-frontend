@@ -1,16 +1,19 @@
 <script lang="ts" setup>
 import type { EchartsUIType } from '@vben/plugins/echarts';
 
+import type { ChartPoint } from '#/custom/weibull/chart-data';
 import type { DistributionStrategy } from '#/custom/weibull/strategies/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
 
 import { EchartsUI, useEcharts } from '@vben/plugins/echarts';
 
-// Update the import path below to the correct relative path if needed
-import getChartData from '#/custom/weibull/chart-data';
+import chartData from '#/custom/weibull/chart-data';
 
-// 接收父组件传递的参数
+const TOTAL_YEARS = 30;
+const MONTHS_PER_YEAR = 12;
+const TOTAL_MONTHS = TOTAL_YEARS * MONTHS_PER_YEAR;
+
 const props = defineProps<{
   funcType: string;
   strategy: DistributionStrategy;
@@ -19,39 +22,40 @@ const props = defineProps<{
 const chartRef = ref<EchartsUIType>();
 const { renderEcharts } = useEcharts(chartRef);
 
-// 计算数据点
-const chartPoints = computed(() => {
-  // ChartData.getPDFData 返回 [[x, y], ...]
-  return getChartData.getChartData(props.strategy, props.funcType);
-});
-
-// 拆分 x、y 数据
-const xData = computed(() =>
-  chartPoints.value
-    .map((item) => item[0])
-    .filter((x): x is number => typeof x === 'number'),
-);
-const yData = computed(() =>
-  chartPoints.value
-    .map((item) => item[1])
-    .filter((y): y is number => typeof y === 'number'),
+const chartPoints = computed<ChartPoint[]>(() =>
+  chartData.getChartData(props.strategy, props.funcType.toUpperCase()),
 );
 
-// 根据 funcType 计算 Y 轴标题
+const formatYearMonth = (monthIndex: number) => {
+  if (monthIndex >= TOTAL_MONTHS) {
+    return `第${TOTAL_YEARS}年12月`;
+  }
+  const year = Math.floor(monthIndex / MONTHS_PER_YEAR) + 1;
+  const month = (monthIndex % MONTHS_PER_YEAR) + 1;
+  return `第${year}年${month}月`;
+};
+
+const xLabels = computed(() =>
+  chartPoints.value.map((point) => formatYearMonth(point.monthIndex)),
+);
+
+const seriesData = computed(() =>
+  chartPoints.value.map((point) => ({
+    value: point.value,
+    hours: point.hours,
+  })),
+);
+
 const yAxisName = computed(() => {
   switch (props.funcType.toUpperCase()) {
-    case 'CDF': {
+    case 'CDF':
       return '不可靠度';
-    }
-    case 'PDF': {
+    case 'PDF':
       return 'λ(t)×10⁶';
-    }
-    case 'SF': {
+    case 'SF':
       return '可靠度';
-    }
-    default: {
+    default:
       return '';
-    }
   }
 });
 
@@ -60,14 +64,13 @@ const renderChart = () => {
     grid: {
       bottom: 30,
       containLabel: true,
-      left: '2%',
-      right: '1%',
-      top: '7%',
+      left: '3%',
+      right: '3%',
+      top: '8%',
     },
     series: [
       {
-        // areaStyle: {},
-        data: yData.value,
+        data: seriesData.value,
         itemStyle: {
           color: '#5ab1ef',
         },
@@ -86,13 +89,27 @@ const renderChart = () => {
         },
       },
       trigger: 'axis',
+      formatter: (params: any) => {
+        const point = params?.[0];
+        if (!point) {
+          return '';
+        }
+        const hours = point?.data?.hours ?? '';
+        const label = xLabels.value?.[point.dataIndex] ?? '';
+        const value = point?.data?.value ?? '';
+        return `${label}<br/>累计运行时间：${hours} 小时<br/>${yAxisName.value}：${value}`;
+      },
     },
     xAxis: {
+      axisLabel: {
+        formatter: (_: string, index: number) => xLabels.value[index] ?? '',
+        rotate: 45,
+      },
       axisTick: {
         show: false,
       },
       boundaryGap: false,
-      data: xData.value,
+      data: xLabels.value,
       splitLine: {
         lineStyle: {
           type: 'solid',
@@ -101,9 +118,9 @@ const renderChart = () => {
         show: true,
       },
       type: 'category',
-      name: '累计运行时间（小时）',
+      name: '累计运行时间（第 x 年 y 月）',
       nameLocation: 'middle',
-      nameGap: 30,
+      nameGap: 40,
       nameTextStyle: {
         color: '#333',
         fontSize: 14,
@@ -121,7 +138,7 @@ const renderChart = () => {
         type: 'value',
         name: yAxisName.value,
         nameLocation: 'start',
-        nameGap: -300,
+        nameGap: -260,
         nameTextStyle: {
           color: '#333',
           fontSize: 14,
@@ -130,6 +147,7 @@ const renderChart = () => {
     ],
   });
 };
+
 onMounted(renderChart);
 watch([() => props.strategy, () => props.funcType], renderChart);
 </script>
@@ -137,3 +155,4 @@ watch([() => props.strategy, () => props.funcType], renderChart);
 <template>
   <EchartsUI ref="chartRef" />
 </template>
+
