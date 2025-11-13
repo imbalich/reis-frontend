@@ -1,8 +1,96 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import {
+  getCalculationMethodOptionsApi,
+  getSparePartOptionsApi,
+  getWarehouseOptionsApi,
+} from '#/api/scientific-inventory';
+
 // 查询表单配置
 export const querySchema: VbenFormSchema[] = [
+  {
+    component: 'ApiSelect',
+    fieldName: 'warehouse',
+    label: '库房',
+    componentProps: {
+      allowClear: true,
+      showSearch: true,
+      class: 'w-full',
+      placeholder: '请选择库房',
+      filterOption: (input: string, option: any) => {
+        const keyword = (input || '').toLowerCase();
+        const label = option?.label?.toLowerCase?.() ?? '';
+        const value = option?.value?.toLowerCase?.() ?? '';
+        return label.includes(keyword) || value.includes(keyword);
+      },
+      api: async () => {
+        const res = await getWarehouseOptionsApi();
+        // 后端返回格式: [['编码', '名称'], ...]
+        // res本身就是数组，不是 {data: [...]} 格式
+        // 转换为前端需要的格式: [{value: '编码', label: '编码-名称'}]
+        return res.map((item: [string, string]) => ({
+          value: item[0], // 库房编码
+          label: `${item[0]}-${item[1]}`, // 编码-名称格式
+        }));
+      },
+    },
+  },
+  {
+    component: 'ApiSelect',
+    fieldName: 'spare_part',
+    label: '备品',
+    dependencies: {
+      triggerFields: ['warehouse'],
+      componentProps: (values) => ({
+        allowClear: true,
+        showSearch: true,
+        class: 'w-full',
+        placeholder: '请选择备品',
+        filterOption: (input: string, option: any) => {
+          const keyword = (input || '').toLowerCase();
+          const label = option?.label?.toLowerCase?.() ?? '';
+          const value = option?.value?.toLowerCase?.() ?? '';
+          return label.includes(keyword) || value.includes(keyword);
+        },
+        api: async (params: any) => {
+          if (!params?.warehouse) return [];
+          const res = await getSparePartOptionsApi(params.warehouse);
+          // 后端返回格式: [['编码', '名称'], ...]
+          // res本身就是数组，不是 {data: [...]} 格式
+          // 转换为前端需要的格式: [{value: '编码', label: '编码-名称'}]
+          return res.map((item: [string, string]) => ({
+            value: item[0], // 备品编码
+            label: `${item[0]}-${item[1]}`, // 编码-名称格式
+          }));
+        },
+        params: {
+          warehouse: values.warehouse,
+        },
+      }),
+    },
+  },
+  {
+    component: 'ApiSelect',
+    fieldName: 'calculation_method',
+    label: '计算方法',
+    componentProps: {
+      allowClear: true,
+      showSearch: true,
+      class: 'w-full',
+      placeholder: '请选择计算方法',
+      api: async () => {
+        const res = await getCalculationMethodOptionsApi();
+        // 后端返回格式: ['方法1', '方法2', ...]
+        // res本身就是数组，不是 {data: [...]} 格式
+        // 转换为前端需要的格式: [{value: '方法1', label: '方法1'}]
+        return res.map((item: string) => ({
+          value: item,
+          label: item,
+        }));
+      },
+    },
+  },
   {
     component: 'Input',
     fieldName: 'calculation_id',
@@ -12,55 +100,6 @@ export const querySchema: VbenFormSchema[] = [
       showSearch: true,
       class: 'w-full',
       placeholder: '请输入计算批次ID',
-    },
-  },
-  {
-    component: 'ApiSelect',
-    fieldName: 'warehouse',
-    label: '库房',
-    componentProps: {
-      allowClear: true,
-      class: 'w-full',
-      placeholder: '请选择库房',
-      showSearch: true,
-      filterOption: true,
-      api: () => import('#/api/scientific-inventory').then(({ getWarehouseOptionsApi }) =>
-        getWarehouseOptionsApi().then(res => res.data)
-      ),
-    },
-  },
-  {
-    component: 'ApiSelect',
-    fieldName: 'spare_part',
-    label: '备品',
-    componentProps: {
-      allowClear: true,
-      class: 'w-full',
-      placeholder: '请选择备品',
-      showSearch: true,
-      filterOption: true,
-      api: ({ formValues }: any) => {
-        const warehouseCode = formValues?.warehouse;
-        return import('#/api/scientific-inventory').then(({ getSparePartOptionsApi }) =>
-          getSparePartOptionsApi(warehouseCode).then(res => res.data)
-        );
-      },
-      dependencies: ['warehouse'], // 依赖库房字段变化
-    },
-  },
-  {
-    component: 'ApiSelect',
-    fieldName: 'calculation_method',
-    label: '计算方法',
-    componentProps: {
-      allowClear: true,
-      class: 'w-full',
-      placeholder: '请选择计算方法',
-      showSearch: true,
-      filterOption: true,
-      api: () => import('#/api/scientific-inventory').then(({ getCalculationMethodOptionsApi }) =>
-        getCalculationMethodOptionsApi().then(res => res.data)
-      ),
     },
   },
   {

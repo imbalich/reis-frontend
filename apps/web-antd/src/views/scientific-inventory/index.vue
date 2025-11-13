@@ -18,6 +18,7 @@ const formOptions: VbenFormProps = {
   submitButtonOptions: {
     content: '查询',
   },
+  wrapperClass: 'grid grid-cols-3 gap-4',
   schema: querySchema,
 };
 

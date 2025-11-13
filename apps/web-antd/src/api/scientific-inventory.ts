@@ -48,29 +48,23 @@ export interface CalculationMethodOption {
 export type ScienceWarehouseListResponse =
   PaginationResult<ScienceWarehouseResultDetails>;
 
-// 获取库房选项列表
-export const getWarehouseOptionsApi = (): Promise<{
-  data: WarehouseOption[];
-}> => {
+// 获取库房选项列表（返回原始数据，在data.ts中转换）
+export const getWarehouseOptionsApi = () => {
   return requestClient.get('/api/v1/calcu/science-warehouse/warehouses');
 };
 
-// 获取备品选项列表（支持级联筛选）
-export const getSparePartOptionsApi = (
-  warehouseCode?: string,
-): Promise<{
-  data: SparePartOption[];
-}> => {
+// 获取备品选项列表（返回原始数据，在data.ts中转换）
+export const getSparePartOptionsApi = (warehouseCode?: string) => {
   return requestClient.get('/api/v1/calcu/science-warehouse/spare-parts', {
     params: warehouseCode ? { warehouse_code: warehouseCode } : {},
   });
 };
 
-// 获取计算方法选项列表
-export const getCalculationMethodOptionsApi = (): Promise<{
-  data: CalculationMethodOption[];
-}> => {
-  return requestClient.get('/api/v1/calcu/science-warehouse/calculation-methods');
+// 获取计算方法选项列表（返回原始数据，在data.ts中转换）
+export const getCalculationMethodOptionsApi = () => {
+  return requestClient.get(
+    '/api/v1/calcu/science-warehouse/calculation-methods',
+  );
 };
 
 // API函数
