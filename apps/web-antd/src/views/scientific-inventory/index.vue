@@ -47,10 +47,8 @@ const gridOptions: VxeTableGridOptions<ScienceWarehouseResultDetails> = {
           page: page.currentPage,
           size: page.pageSize,
           calculation_id: formValues.calculation_id || undefined,
-          warehouse_code: formValues.warehouse_code || undefined,
-          warehouse_name: formValues.warehouse_name || undefined,
-          spare_part_code: formValues.spare_part_code || undefined,
-          spare_part_name: formValues.spare_part_name || undefined,
+          warehouse_code: formValues.warehouse || undefined, // 直接使用选中的编码
+          spare_part_code: formValues.spare_part || undefined, // 直接使用选中的编码
           calculation_method: formValues.calculation_method || undefined,
           time_range: formValues.time_range || undefined,
         };

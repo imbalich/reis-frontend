@@ -15,67 +15,52 @@ export const querySchema: VbenFormSchema[] = [
     },
   },
   {
-    component: 'Input',
-    fieldName: 'warehouse_code',
-    label: '库房编码',
+    component: 'ApiSelect',
+    fieldName: 'warehouse',
+    label: '库房',
     componentProps: {
       allowClear: true,
-      showSearch: true,
       class: 'w-full',
-      placeholder: '请输入库房编码',
+      placeholder: '请选择库房',
+      showSearch: true,
+      filterOption: true,
+      api: () => import('#/api/scientific-inventory').then(({ getWarehouseOptionsApi }) =>
+        getWarehouseOptionsApi().then(res => res.data)
+      ),
     },
   },
   {
-    component: 'Input',
-    fieldName: 'warehouse_name',
-    label: '库房名称',
+    component: 'ApiSelect',
+    fieldName: 'spare_part',
+    label: '备品',
     componentProps: {
       allowClear: true,
-      showSearch: true,
       class: 'w-full',
-      placeholder: '请输入库房名称',
+      placeholder: '请选择备品',
+      showSearch: true,
+      filterOption: true,
+      api: ({ formValues }: any) => {
+        const warehouseCode = formValues?.warehouse;
+        return import('#/api/scientific-inventory').then(({ getSparePartOptionsApi }) =>
+          getSparePartOptionsApi(warehouseCode).then(res => res.data)
+        );
+      },
+      dependencies: ['warehouse'], // 依赖库房字段变化
     },
   },
   {
-    component: 'Input',
-    fieldName: 'spare_part_code',
-    label: '备品编码',
-    componentProps: {
-      allowClear: true,
-      showSearch: true,
-      class: 'w-full',
-      placeholder: '请输入备品编码',
-    },
-  },
-  {
-    component: 'Input',
-    fieldName: 'spare_part_name',
-    label: '备品名称',
-    componentProps: {
-      allowClear: true,
-      showSearch: true,
-      class: 'w-full',
-      placeholder: '请输入备品名称',
-    },
-  },
-  {
-    component: 'Select',
+    component: 'ApiSelect',
     fieldName: 'calculation_method',
     label: '计算方法',
     componentProps: {
       allowClear: true,
       class: 'w-full',
       placeholder: '请选择计算方法',
-      options: [
-        { label: 'fitted - 正常拟合', value: 'fitted' },
-        { label: 'exponential_fit - 指数分布拟合', value: 'exponential_fit' },
-        {
-          label: 'exponential_fit_failed - 指数分布拟合失败',
-          value: 'exponential_fit_failed',
-        },
-        { label: 'insufficient_data - 数据不足', value: 'insufficient_data' },
-        { label: 'default - 默认方法', value: 'default' },
-      ],
+      showSearch: true,
+      filterOption: true,
+      api: () => import('#/api/scientific-inventory').then(({ getCalculationMethodOptionsApi }) =>
+        getCalculationMethodOptionsApi().then(res => res.data)
+      ),
     },
   },
   {

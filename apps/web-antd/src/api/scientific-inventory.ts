@@ -22,17 +22,56 @@ export interface ScienceWarehouseQueryParams {
   page?: number;
   size?: number;
   calculation_id?: string;
-  warehouse_code?: string;
-  warehouse_name?: string;
-  spare_part_code?: string;
-  spare_part_name?: string;
+  warehouse_code?: string; // 选择的下拉选项中的编码部分
+  spare_part_code?: string; // 选择的下拉选项中的编码部分
   calculation_method?: string;
   time_range?: string[]; // 创建时间范围 [开始日期, 结束日期]
+}
+
+// 选项数据类型
+export interface WarehouseOption {
+  value: string; // 库房编码
+  label: string; // "编码-名称" 格式
+}
+
+export interface SparePartOption {
+  value: string; // 备品编码
+  label: string; // "编码-名称" 格式
+}
+
+export interface CalculationMethodOption {
+  value: string;
+  label: string;
 }
 
 // API响应类型
 export type ScienceWarehouseListResponse =
   PaginationResult<ScienceWarehouseResultDetails>;
+
+// 获取库房选项列表
+export const getWarehouseOptionsApi = (): Promise<{
+  data: WarehouseOption[];
+}> => {
+  return requestClient.get('/api/v1/calcu/science-warehouse/warehouses');
+};
+
+// 获取备品选项列表（支持级联筛选）
+export const getSparePartOptionsApi = (
+  warehouseCode?: string,
+): Promise<{
+  data: SparePartOption[];
+}> => {
+  return requestClient.get('/api/v1/calcu/science-warehouse/spare-parts', {
+    params: warehouseCode ? { warehouse_code: warehouseCode } : {},
+  });
+};
+
+// 获取计算方法选项列表
+export const getCalculationMethodOptionsApi = (): Promise<{
+  data: CalculationMethodOption[];
+}> => {
+  return requestClient.get('/api/v1/calcu/science-warehouse/calculation-methods');
+};
 
 // API函数
 export const getScienceWarehouseListApi = (
