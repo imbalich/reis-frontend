@@ -107,14 +107,97 @@ export const useAuthStore = defineStore('auth', () => {
     const params = new URLSearchParams(window.location.search);
     const access_token = params.get('access_token');
     const session_uuid = params.get('session_uuid');
+    const error = params.get('error');
 
-    if (access_token && session_uuid) {
-      accessStore.setAccessToken(access_token);
-      accessStore.setAccessSessionUuid(session_uuid);
-      return true;
+    // 处理错误情况
+    if (error) {
+      const ERROR_MAP: Record<string, string> = {
+        invalid_state: '授权状态无效或已过期，请重新登录',
+        token_error: '获取访问令牌失败',
+        no_access_token: '未获取到访问令牌',
+        login_failed: '登录失败，请重试',
+        http_error: '网络请求错误',
+        unknown_error: '未知错误，请重试',
+      };
+      const errorMsg = ERROR_MAP[error] ?? `登录失败：${error}`;
+
+      notification.error({
+        message: 'OA平台登录失败',
+        description: errorMsg,
+        duration: 5,
+      });
+
+      // 跳转回登录页
+      await router.replace({
+        path: LOGIN_PATH,
+        query: {},
+      });
+      return false;
     }
 
+    // 处理成功情况
+    if (access_token && session_uuid) {
+      try {
+        accessStore.setAccessToken(access_token);
+        accessStore.setAccessSessionUuid(session_uuid);
+
+        // 获取用户信息和权限码
+        const [fetchUserInfoResult, accessCodes] = await Promise.all([
+          fetchUserInfo(),
+          getAccessCodesApi(),
+        ]);
+
+        const userInfo = fetchUserInfoResult;
+        userStore.setUserInfo(userInfo);
+        accessStore.setAccessCodes(accessCodes);
+
+        if (accessStore.loginExpired) {
+          accessStore.setLoginExpired(false);
+        }
+
+        // 初始化WebSocket连接
+        const wsStore = useWebSocketStore();
+        wsStore.connect();
+
+        // 显示成功通知
+        if (userInfo?.nickname) {
+          notification.success({
+            description: `${$t('authentication.loginSuccessDesc')}:${userInfo?.nickname}`,
+            duration: 3,
+            message: $t('authentication.loginSuccess'),
+          });
+        }
+
+        // 跳转到首页
+        await router.push(userInfo.homePath || preferences.app.defaultHomePath);
+
+        return true;
+      } catch (error_) {
+        console.error('OAuth2 login error:', error_);
+        notification.error({
+          message: '登录失败',
+          description: '获取用户信息失败，请重试',
+          duration: 5,
+        });
+        await router.replace({
+          path: LOGIN_PATH,
+          query: {},
+        });
+        return false;
+      }
+    }
+
+    // 缺少必要参数
     console.error('Missing or invalid access_token or session_uuid');
+    notification.error({
+      message: '登录失败',
+      description: '缺少必要的登录参数，请重新登录',
+      duration: 5,
+    });
+    await router.replace({
+      path: LOGIN_PATH,
+      query: {},
+    });
     return false;
   }
 
