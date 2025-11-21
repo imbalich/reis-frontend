@@ -319,7 +319,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'version',
-    title: '版本',
+    title: '工艺变更',
     slots: { default: 'version' },
   },
 ];

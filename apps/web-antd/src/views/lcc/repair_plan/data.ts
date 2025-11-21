@@ -81,29 +81,40 @@ export const columns: VxeGridProps['columns'] = [
   {
     field: 'part_name',
     title: '零部件名称',
+    width: 170,
   },
   {
     field: 'part',
     title: '物料编码',
+    width: 130,
   },
   {
     field: 'level_old',
     title: '原维修周期',
+    width: 130,
   },
   {
     field: 'year_new',
     title: '推荐维修周期（年）',
+    width: 130,
   },
   {
     field: 'level_new',
     title: '推荐维修周期',
+    width: 130,
   },
   {
     field: 'sf',
     title: '对应可靠度/可靠寿命',
+    width: 140,
   },
   {
     field: 'lcc_result',
     title: '建议',
+    width: 60,
+  },
+  {
+    field: 'lcc_result_tag',
+    title: '说明',
   },
 ];
