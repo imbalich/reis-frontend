@@ -11,3 +11,7 @@ export async function getOAuth2Google() {
 export async function getOAuth2LinuxDo() {
   return requestClient.get<string>('/api/v1/oauth2/linux-do');
 }
+
+export async function getOAuth2OA() {
+  return requestClient.get<string>('/api/v1/oauth2/oa-platform');
+}

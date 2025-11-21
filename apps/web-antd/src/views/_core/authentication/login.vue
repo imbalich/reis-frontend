@@ -10,7 +10,7 @@ import { useAccessStore } from '@vben/stores';
 
 import { Image } from 'ant-design-vue';
 
-// import OAuth2Login from '#/plugins/oauth2/views/login.vue';
+import OAuth2OaLogin from '#/plugins/oauth2/views/oa-login.vue';
 import { useAuthStore } from '#/store';
 
 defineOptions({ name: 'Login' });
@@ -185,12 +185,12 @@ const formSchema = computed((): VbenFormSchema[] => {
     :show-forget-password="false"
     :show-code-login="false"
     :show-qrcode-login="false"
-    :show-third-party-login="false"
+    :show-register="false"
+    :show-third-party-login="true"
     @submit="authStore.authLogin"
   >
-    <!-- 注释掉第三方登录 -->
-    <!-- <template #third-party-login>
-      <OAuth2Login />
-    </template> -->
+    <template #third-party-login>
+      <OAuth2OaLogin />
+    </template>
   </AuthenticationLogin>
 </template>
