@@ -104,10 +104,17 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function oauth2Login() {
-    const params = new URLSearchParams(window.location.search);
-    const access_token = params.get('access_token');
-    const session_uuid = params.get('session_uuid');
-    const error = params.get('error');
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashQuery = window.location.hash.includes('?')
+      ? window.location.hash.substring(window.location.hash.indexOf('?') + 1)
+      : '';
+    const hashParams = new URLSearchParams(hashQuery);
+    const getParam = (key: string) =>
+      searchParams.get(key) ?? hashParams.get(key);
+
+    const access_token = getParam('access_token');
+    const session_uuid = getParam('session_uuid');
+    const error = getParam('error');
 
     // 处理错误情况
     if (error) {
