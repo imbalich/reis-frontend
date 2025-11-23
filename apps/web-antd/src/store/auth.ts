@@ -106,7 +106,9 @@ export const useAuthStore = defineStore('auth', () => {
   async function oauth2Login() {
     const searchParams = new URLSearchParams(window.location.search);
     const hashQuery = window.location.hash.includes('?')
-      ? window.location.hash.substring(window.location.hash.indexOf('?') + 1)
+      ? window.location.hash.slice(
+          Math.max(0, window.location.hash.indexOf('?') + 1),
+        )
       : '';
     const hashParams = new URLSearchParams(hashQuery);
     const getParam = (key: string) =>
