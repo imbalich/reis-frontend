@@ -300,14 +300,71 @@ const updateConfig = () => {
   emit('configUpdate', { ...localConfig.value });
 };
 
+// 计算MTBF（使用积分方法：MTBF = ∫₀^∞ R(t) dt）
+// 对于指数分布，这是最准确的方法
+const calculateMTBF = (reliabilities: number[], times: number[]): number => {
+  if (reliabilities.length === 0 || times.length === 0) return 0;
+
+  // 使用梯形法则进行数值积分
+  let integral = 0;
+  for (let i = 0; i < reliabilities.length - 1; i++) {
+    const dt = times[i + 1] - times[i];
+    const r1 = reliabilities[i];
+    const r2 = reliabilities[i + 1];
+    // 梯形面积：(上底 + 下底) × 高 / 2
+    integral += ((r1 + r2) * dt) / 2;
+  }
+
+  // 如果最后一个时间点不是无穷大，需要外推到无穷
+  // 对于指数分布，如果 R(t) = e^(-λt)，那么 ∫₀^∞ R(t) dt = 1/λ = MTBF
+  // 如果可靠度在最后几个时间点已经很小，可以认为已经收敛
+  const lastReliability = reliabilities[reliabilities.length - 1];
+  const lastTime = times[times.length - 1];
+
+  // 如果最后可靠度很小（< 0.001），可以认为已经收敛到0
+  if (lastReliability < 0.001) {
+    return integral;
+  }
+
+  // 否则，假设可靠度继续按指数衰减，外推到无穷
+  // 估算故障率：λ ≈ -ln(R(t)) / t
+  if (lastTime > 0 && lastReliability > 0) {
+    const estimatedLambda = -Math.log(lastReliability) / lastTime;
+    if (estimatedLambda > 0) {
+      // 剩余积分：∫ₜ^∞ e^(-λt) dt = e^(-λt) / λ
+      const remainingIntegral = lastReliability / estimatedLambda;
+      return integral + remainingIntegral;
+    }
+  }
+
+  return integral;
+};
+
 // 生成时间序列数据
 const generateTimeSeriesData = () => {
   const data = [];
   const { startTime, duration, dataPoints } = localConfig.value.reliability;
   const timeStep = (duration - startTime) / (dataPoints - 1);
 
+  // 先收集所有可靠度和时间点，用于计算MTBF
+  const reliabilities: number[] = [];
+  const times: number[] = [];
+
   for (let i = 0; i < dataPoints; i++) {
     const time = startTime + i * timeStep;
+    const reliability = calculationResults.value.systemReliability[i] || 0;
+
+    reliabilities.push(reliability);
+    times.push(time);
+  }
+
+  // 计算系统MTBF（常数，不依赖于时间点）
+  const systemMTBF = calculateMTBF(reliabilities, times);
+
+  // 生成时间序列数据
+  for (let i = 0; i < dataPoints; i++) {
+    const time = times[i];
+    const reliability = reliabilities[i];
 
     const record: any = {
       key: i,
@@ -315,10 +372,9 @@ const generateTimeSeriesData = () => {
     };
 
     // 使用真实计算结果
-    record.reliability = calculationResults.value.systemReliability[i] || 0;
+    record.reliability = reliability;
 
     // 计算故障率 λ(t) 并转换为FPMH
-    const reliability = record.reliability;
     if (reliability > 0 && time > 0) {
       // 瞬时故障率：λ(t) = -ln(R(t)) / t
       const failureRatePerHour = -Math.log(reliability) / time;
@@ -332,13 +388,8 @@ const generateTimeSeriesData = () => {
       record.failureRate = Number.NaN;
     }
 
-    // 计算MTBF
-    if (reliability > 0) {
-      // 基于可靠度估算MTBF：MTBF = -t / ln(R(t))
-      record.mtbf = time > 0 ? -time / Math.log(reliability) : 0;
-    } else {
-      record.mtbf = 0;
-    }
+    // MTBF是常数（对于指数分布），使用积分方法计算的值
+    record.mtbf = systemMTBF;
 
     data.push(record);
   }
@@ -368,8 +419,8 @@ const triggerCalculation = async () => {
     return;
   }
 
-  console.log('触发项目级可靠性计算，配置:', localConfig.value);
-  console.log('当前选择的算法:', selectedAlgorithm.value);
+  // console.log('触发项目级可靠性计算，配置:', localConfig.value);
+  // console.log('当前选择的算法:', selectedAlgorithm.value);
 
   // 设置计算算法
   setCalculationAlgorithm(selectedAlgorithm.value);
@@ -444,7 +495,7 @@ const compareAlgorithms = async () => {
     return;
   }
 
-  console.log('🧪 开始算法对比测试');
+  // console.log('🧪 开始算法对比测试');
 
   comparingAlgorithms.value = true;
   calculationError.value = '';
@@ -596,16 +647,8 @@ const compareAlgorithms = async () => {
             •
             <strong>自适应算法</strong>：根据拓扑复杂度自动选择最佳算法（推荐）
           </div>
-          <div>
-            •
-            <strong>Factoring算法</strong
-            >：精确处理复杂拓扑，包括共享节点和K/N表决
-          </div>
-          <div>
-            •
-            <strong>路径枚举法</strong
-            >：快速计算简单拓扑，适用于无共享节点的结构
-          </div>
+          <div>• <strong>Factoring算法</strong>：精确处理复杂拓扑，包括共享节点和K/N表决</div>
+          <div>• <strong>路径枚举法</strong>：快速计算简单拓扑，适用于无共享节点的结构</div>
         </div>
       </a-form-item>
 
