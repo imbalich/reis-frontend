@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { message, Modal } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -41,15 +41,15 @@ const handleSubmit = async () => {
       original_img.value = `data:image/png;base64,${res.img_original_result}`;
       optimize_img.value = `data:image/png;base64,${res.img_optimize_result}`;
       equal_lifetime_t.value = res.equal_lifetime_t;
-      if (!equal_lifetime_t.value) {
-        Modal.info({
-          title: '提示',
-          content: '未找到等寿命点，保证所有部件在t0时刻均大于目标值R(t)',
-          okText: '确定',
-          centered: true, // 居中显示
-          onOk() {},
-        });
-      }
+      // if (!equal_lifetime_t.value) {
+      //   Modal.info({
+      //     title: '提示',
+      //     content: '未找到等寿命点，保证所有部件在t0时刻均大于目标值R(t)',
+      //     okText: '确定',
+      //     centered: true, // 居中显示
+      //     onOk() {},
+      //   });
+      // }
       message.success('成功请求到数据');
     } else {
       // 数据不匹配，触发POST生成
@@ -80,7 +80,7 @@ const gridOptions = {
   pagerConfig: {
     enabled: false,
   },
-  height: 400,
+  height: 800,
   // maxHeight: 200,
   exportConfig: {},
   printConfig: {},
@@ -129,10 +129,14 @@ watch([tableData, loading], () => {
     </div>
     <!-- 表格 -->
     <div class="mt-4 w-full">
+      <span>
+        说明：组1：在维修周期处SF≥0.99；组2：在维修周期处
+        0.95＜SF＜0.99,；组3：在维修周期处；SF≤0.95；组4：必换件。
+      </span>
       <Grid />
     </div>
     <!-- 图形展示区 -->
-    <div class="mt-4 flex w-full space-x-4" style="height: 440px">
+    <div class="mt-4 flex w-full space-x-4" style="height: 600px">
       <a-card style="flex: 1; min-width: 0">
         <img
           v-if="original_img"

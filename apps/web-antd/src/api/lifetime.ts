@@ -18,6 +18,9 @@ export interface EqualLifeRes {
   original_equal_point_pdf: number;
   optimized_equal_point_pdf: number;
   need_optimization: boolean;
+  category: string;
+  equal_lifetime_t_year: string;
+  rapair_plan: string;
 }
 
 export interface EqualLifePartsByModelParams {

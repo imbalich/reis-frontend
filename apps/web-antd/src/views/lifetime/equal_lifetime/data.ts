@@ -94,39 +94,88 @@ export const schema: VbenFormSchema[] = [
 ];
 
 export const columns: VxeGridProps['columns'] = [
-  { field: 'seq', title: '序号', type: 'seq', width: 40 },
+  // { field: 'seq', title: '序号', type: 'seq', width: 40 },
   {
-    field: 'part_name',
-    title: '零部件名称',
-  },
-  {
-    field: 'part',
-    title: '物料编码',
-  },
-  {
-    field: 'original_pdf',
-    title: '优化前FPMH(t0)',
-  },
-  {
-    field: 'optimized_pdf',
-    title: '优化后FPMH(t0)',
-    formatter: ({ cellValue }) => cellValue ?? '---',
-  },
-  {
-    field: 'original_equal_point_pdf',
-    title: '优化前FPMH(t)',
-    formatter: ({ cellValue }) => cellValue ?? '---',
-  },
-  {
-    field: 'optimized_equal_point_pdf',
-    title: '优化后FPMH(t)',
-    formatter: ({ cellValue }) => cellValue ?? '---',
-  },
-  {
-    field: 'need_optimization',
-    title: '建议',
-    formatter: ({ row }) => {
-      return row.need_optimization ? '优化' : '不优化';
+    field: 'category',
+    title: '类别',
+    formatter: ({ cellValue }) => {
+      switch (cellValue) {
+        case 'A': {
+          return '组1';
+        }
+        case 'B': {
+          return '组2';
+        }
+        case 'C': {
+          return '组3';
+        }
+        case 'D': {
+          return '组4';
+        }
+        default: {
+          return cellValue;
+        }
+      }
     },
   },
+  // { field: 'equal_lifetime_t_year', title: '寿命阶段', width: 100 },
+  {
+    title: '相似产品',
+    children: [
+      {
+        field: 'rapair_plan',
+        title: '维修周期',
+      },
+      {
+        field: 'part_name',
+        title: '零部件名称',
+      },
+      {
+        field: 'part',
+        title: '物料编码',
+      },
+      {
+        field: 'original_pdf',
+        title: 'FPMH(维修周期）',
+      },
+    ],
+  },
+  // {
+  //   field: 'optimized_pdf',
+  //   title: '优化后FPMH(t0)',
+  //   formatter: ({ cellValue }) => cellValue ?? '---',
+  // },
+  // {
+  //   field: 'original_equal_point_pdf',
+  //   title: '相似产品FPMH(t)',
+  //   formatter: ({ cellValue }) => cellValue ?? '---',
+  // },
+  {
+    title: '新产品',
+    children: [
+      {
+        field: 'equal_lifetime_t_year',
+        title: '推荐维修周期',
+      },
+      {
+        field: 'optimized_equal_point_pdf',
+        title: 'FPMH(推荐维修周期)',
+        formatter: ({ cellValue }) => cellValue ?? '---',
+      },
+    ],
+  },
+  // {
+  //   field: 'rapair_plan',
+  //   title: '推荐维修周期',
+  //   formatter: ({ row }) => {
+  //     return `${row.rapair_plan}维护`;
+  //   },
+  // },
+  // {
+  //   field: 'need_optimization',
+  //   title: '建议',
+  //   formatter: ({ row }) => {
+  //     return row.need_optimization ? '优化' : '不优化';
+  //   },
+  // },
 ];

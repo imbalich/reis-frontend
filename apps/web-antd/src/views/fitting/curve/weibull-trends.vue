@@ -45,14 +45,18 @@ const seriesData = computed(() =>
 
 const yAxisName = computed(() => {
   switch (props.funcType.toUpperCase()) {
-    case 'CDF':
+    case 'CDF': {
       return '不可靠度';
-    case 'PDF':
+    }
+    case 'PDF': {
       return 'λ(t)×10⁶';
-    case 'SF':
+    }
+    case 'SF': {
       return '可靠度';
-    default:
+    }
+    default: {
       return '';
+    }
   }
 });
 

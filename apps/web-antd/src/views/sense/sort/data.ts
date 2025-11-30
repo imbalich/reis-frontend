@@ -54,7 +54,7 @@ export const querySchema: VbenFormSchema[] = [
           });
           return res.map((item: string) => ({
             label: `${item[0]}(${item[1]})`,
-            value: item[0],
+            value: item[1],
           }));
         },
         params: {
@@ -299,7 +299,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'check_tools_sign',
-    title: '检验工具',
+    title: '工具/工装/装备',
     slots: { default: 'check_tools_sign' },
   },
   {
