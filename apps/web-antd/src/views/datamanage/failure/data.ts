@@ -134,6 +134,25 @@ export const querySchema: VbenFormSchema[] = [
     fieldName: 'is_zero_distance',
     label: '是否零公里',
   },
+  {
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      showSearch: true,
+      options: [
+        {
+          label: '是',
+          value: 1,
+        },
+        {
+          label: '否',
+          value: 0,
+        },
+      ],
+    },
+    fieldName: 'is_company',
+    label: '是否为本公司产品',
+  },
 ];
 
 export const columns: VxeGridProps['columns'] = [
