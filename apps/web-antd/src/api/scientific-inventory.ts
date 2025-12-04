@@ -15,6 +15,7 @@ export interface ScienceWarehouseResultDetails {
   time_interval_days: number; // 时间间隔（天）
   input_date: string; // 计算截止日期
   created_time: string; // 创建时间
+  max_failure_count: number; // 最大滚动故障次数
 }
 
 // 查询参数
