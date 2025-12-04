@@ -123,16 +123,16 @@ export const columns: VxeGridProps['columns'] = [
     title: '相似产品',
     children: [
       {
-        field: 'rapair_plan',
-        title: '维修周期',
-      },
-      {
         field: 'part_name',
         title: '零部件名称',
       },
       {
         field: 'part',
         title: '物料编码',
+      },
+      {
+        field: 'rapair_plan',
+        title: '维修周期',
       },
       {
         field: 'original_pdf',

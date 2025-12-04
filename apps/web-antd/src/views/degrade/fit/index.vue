@@ -99,7 +99,7 @@ const handleReset = () => {
           <a-form-item label="函数名称">
             {{ getFunctionType(currentFunction?.name ?? '') }}
           </a-form-item>
-          <a-form-item label="置信水平"> 95% </a-form-item>
+          <a-form-item label="置信水平"> 80% </a-form-item>
           <a-divider />
           <a-form-item label="失效时间（预测）">
             {{ currentFunction?.t_failure }}（年）
