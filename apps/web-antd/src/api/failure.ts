@@ -11,6 +11,7 @@ export interface DmFailureParams {
   fault_mode?: string;
   time_range?: Array<string>;
   is_zero_distance?: number;
+  is_company?: number;
   page?: number;
   size?: number;
 }
