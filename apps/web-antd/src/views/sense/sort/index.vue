@@ -142,7 +142,7 @@ function handleShowDetail(field: string, row: any) {
   } catch {}
   const arr = Array.isArray(catObj[field]) ? catObj[field] : [];
   const col = (columns ?? []).find((c) => c.field === field);
-  modalTitle.value = `${col?.title || field}敏感度排序结果`;
+  modalTitle.value = `${col?.title || field}相关度排序结果`;
   modalList.value = arr;
   modalVisible.value = true;
 }
@@ -169,7 +169,7 @@ function handleShowDetail(field: string, row: any) {
         </a-button>
       </a-card>
     </div>
-    <a-card title="敏感度分析排序结果">
+    <a-card title="相关性分析排序结果">
       <Grid>
         <template #check_bezier="{ row }">
           <span>
