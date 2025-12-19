@@ -48,8 +48,14 @@ const yAxisName = computed(() => {
     case 'CDF': {
       return '不可靠度';
     }
+    case 'CHF': {
+      return '累计失效率 H(t)';
+    }
+    case 'HF': {
+      return '瞬时失效率 h(t)×10⁶';
+    }
     case 'PDF': {
-      return 'λ(t)×10⁶';
+      return '故障密度 f(t)×10⁶';
     }
     case 'SF': {
       return '可靠度';

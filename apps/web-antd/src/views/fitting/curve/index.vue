@@ -81,9 +81,11 @@ const handleReset = () => {
 // 图表 funcType 可选
 const activeFuncType = ref('PDF'); // 默认 PDF
 const funcTypeOptions = [
-  { label: 'PDF', value: 'PDF' },
-  { label: 'CDF', value: 'CDF' },
-  { label: 'SF', value: 'SF' },
+  { label: 'PDF（密度）', value: 'PDF' },
+  { label: 'CDF（累计失效概率）', value: 'CDF' },
+  { label: 'SF（可靠度）', value: 'SF' },
+  { label: 'HF（瞬时失效率）', value: 'HF' },
+  { label: 'CHF（累计失效率）', value: 'CHF' },
 ];
 
 // 优度检验选项

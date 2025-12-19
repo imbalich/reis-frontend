@@ -36,26 +36,95 @@ const handleSubmit = async () => {
     }
     // 提交查询
     const res = await getEqualLifeApi(formValues);
-    if (res && res.result && res.result.length > 0) {
-      tableData.value = res.result;
-      original_img.value = `data:image/png;base64,${res.img_original_result}`;
-      optimize_img.value = `data:image/png;base64,${res.img_optimize_result}`;
-      equal_lifetime_t.value = res.equal_lifetime_t;
-      // if (!equal_lifetime_t.value) {
-      //   Modal.info({
-      //     title: '提示',
-      //     content: '未找到等寿命点，保证所有部件在t0时刻均大于目标值R(t)',
-      //     okText: '确定',
-      //     centered: true, // 居中显示
-      //     onOk() {},
-      //   });
-      // }
+
+    // 检查返回数据的结构
+    const resultData = res?.result;
+    const hasValidResult = Array.isArray(resultData) && resultData.length > 0;
+
+    // 检查 equal_lifetime_points 是否有数据（可能是对象或数组）
+    const equalLifetimePoints = res?.equal_lifetime_points;
+    const hasEqualLifetimePoints =
+      equalLifetimePoints &&
+      (Array.isArray(equalLifetimePoints)
+        ? equalLifetimePoints.length > 0
+        : Object.keys(equalLifetimePoints).length > 0);
+
+    // 检查是否有图片数据（说明可能有部分数据已生成）
+    const hasImageData = res?.img_original_result || res?.img_optimize_result;
+
+    if (res && hasValidResult) {
+      // 有有效的 result 数据
+      tableData.value = resultData;
+      original_img.value = res.img_original_result
+        ? `data:image/png;base64,${res.img_original_result}`
+        : '';
+      optimize_img.value = res.img_optimize_result
+        ? `data:image/png;base64,${res.img_optimize_result}`
+        : '';
+      equal_lifetime_t.value = res.equal_lifetime_t || 0;
       message.success('成功请求到数据');
+    } else if (res && hasEqualLifetimePoints) {
+      // result 为空，但 equal_lifetime_points 有数据
+      // 尝试将 equal_lifetime_points 转换为表格数据
+      let convertedData: any[] = [];
+
+      if (Array.isArray(equalLifetimePoints)) {
+        convertedData = equalLifetimePoints;
+      } else if (typeof equalLifetimePoints === 'object') {
+        // 如果是对象，尝试转换为数组
+        convertedData = Object.values(equalLifetimePoints).filter(
+          (item) => item && typeof item === 'object',
+        ) as any[];
+      }
+
+      if (convertedData.length > 0) {
+        tableData.value = convertedData;
+        original_img.value = res.img_original_result
+          ? `data:image/png;base64,${res.img_original_result}`
+          : '';
+        optimize_img.value = res.img_optimize_result
+          ? `data:image/png;base64,${res.img_optimize_result}`
+          : '';
+        equal_lifetime_t.value = res.equal_lifetime_t || 0;
+        message.success('成功请求到数据');
+      } else {
+        // equal_lifetime_points 无法转换为有效数据
+        // 如果有图片数据，说明数据可能正在生成中
+        if (hasImageData) {
+          message.info('数据正在生成中，请稍后再查询');
+        } else {
+          // 没有图片数据，触发 POST 生成
+          await createEqualLifeApi(formValues);
+          message.info('请求已发送，请等待几分钟再查询');
+        }
+        tableData.value = [];
+        original_img.value = res.img_original_result
+          ? `data:image/png;base64,${res.img_original_result}`
+          : '';
+        optimize_img.value = res.img_optimize_result
+          ? `data:image/png;base64,${res.img_optimize_result}`
+          : '';
+        equal_lifetime_t.value = res.equal_lifetime_t || 0;
+      }
+    } else if (res && hasImageData) {
+      // result 为空，但有图片数据，说明数据可能正在生成中
+      message.info('数据正在生成中，请稍后再查询');
+      tableData.value = [];
+      original_img.value = res.img_original_result
+        ? `data:image/png;base64,${res.img_original_result}`
+        : '';
+      optimize_img.value = res.img_optimize_result
+        ? `data:image/png;base64,${res.img_optimize_result}`
+        : '';
+      equal_lifetime_t.value = res.equal_lifetime_t || 0;
     } else {
-      // 数据不匹配，触发POST生成
+      // result 为空且没有其他数据，触发 POST 生成
       await createEqualLifeApi(formValues);
       message.info('请求已发送，请等待几分钟再查询');
       tableData.value = [];
+      original_img.value = '';
+      optimize_img.value = '';
+      equal_lifetime_t.value = 0;
     }
   } catch {
     tableData.value = [];

@@ -1,6 +1,6 @@
 import type { DistributionStrategy } from './strategies/types';
 
-const START_HOURS = 1_000;
+const START_HOURS = 1000;
 const TOTAL_YEARS = 30;
 const HOURS_PER_DAY = 24;
 const TOTAL_HOURS = 365 * TOTAL_YEARS * HOURS_PER_DAY; // 30 年（按 365 天）总小时数
@@ -21,7 +21,8 @@ const ChartData = {
 
     while (hours <= TOTAL_HOURS) {
       let y = this.calculateFunction(strategy, funcType, hours);
-      if (funcType === 'PDF') {
+      // 对数值量级较小的密度/失效率类曲线做放大，便于展示
+      if (funcType === 'PDF' || funcType === 'HF') {
         y *= 1_000_000;
       }
       points.push({
@@ -43,6 +44,12 @@ const ChartData = {
     switch (funcType) {
       case 'CDF': {
         return strategy.calculateCDF(x);
+      }
+      case 'CHF': {
+        return strategy.calculateCHF(x);
+      }
+      case 'HF': {
+        return strategy.calculateHF(x);
       }
       case 'PDF': {
         return strategy.calculatePDF(x);

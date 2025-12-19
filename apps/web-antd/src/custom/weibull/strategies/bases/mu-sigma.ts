@@ -41,8 +41,26 @@ export default abstract class baseMS implements DistributionStrategy {
     if (values.some((v) => v <= 0)) throw new Error('参数必须为正数');
   }
 
-  // 抽象方法强制子类实现
+  // 抽象方法强制子类实现：基础三条曲线
   abstract calculateCDF(x: number): number;
+
+  calculateCHF(x: number): number {
+    const sf = this.calculateSF(x);
+    if (sf <= 0) {
+      return Number.POSITIVE_INFINITY;
+    }
+    return -Math.log(sf);
+  }
+
+  // 默认基于 PDF/SF 组合推导 HF/CHF，具体分布如有需要可在子类中覆写
+  calculateHF(x: number): number {
+    const pdf = this.calculatePDF(x);
+    const sf = this.calculateSF(x);
+    if (sf <= 0) {
+      return Number.POSITIVE_INFINITY;
+    }
+    return pdf / sf;
+  }
 
   abstract calculatePDF(x: number): number;
 
