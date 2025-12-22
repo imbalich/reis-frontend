@@ -173,6 +173,12 @@ const validationRules = {
   duration: [
     { required: true, message: '持续时间不能为空', trigger: 'change' },
     { type: 'number', min: 1, message: '持续时间必须大于0', trigger: 'change' },
+    {
+      type: 'number',
+      max: 500_000,
+      message: '持续时间不能超过500000小时',
+      trigger: 'change',
+    },
   ],
   dataPoints: [
     { required: true, message: '数据点数量不能为空', trigger: 'change' },
@@ -223,6 +229,9 @@ const validateConfig = () => {
   }
   if (localConfig.value.reliability.duration <= 0) {
     errors.duration = '持续时间必须大于0';
+  }
+  if (localConfig.value.reliability.duration > 500_000) {
+    errors.duration = '持续时间不能超过500000小时';
   }
 
   // 数据点数量验证
@@ -577,7 +586,7 @@ const compareAlgorithms = async () => {
         <a-input-number
           v-model:value="localConfig.reliability.duration"
           :min="computedMinDuration"
-          :max="100000"
+          :max="500000"
           :step="1"
           style="width: 100%"
           placeholder="输入持续时间"
@@ -647,8 +656,12 @@ const compareAlgorithms = async () => {
             •
             <strong>自适应算法</strong>：根据拓扑复杂度自动选择最佳算法（推荐）
           </div>
-          <div>• <strong>Factoring算法</strong>：精确处理复杂拓扑，包括共享节点和K/N表决</div>
-          <div>• <strong>路径枚举法</strong>：快速计算简单拓扑，适用于无共享节点的结构</div>
+          <div>
+            • <strong>Factoring算法</strong>：精确处理复杂拓扑，包括共享节点和K/N表决
+          </div>
+          <div>
+            • <strong>路径枚举法</strong>：快速计算简单拓扑，适用于无共享节点的结构
+          </div>
         </div>
       </a-form-item>
 
@@ -762,7 +775,7 @@ const compareAlgorithms = async () => {
               {{
                 timeSeriesData[displayTimeIndex]?.failureRate !== undefined &&
                 !isNaN(timeSeriesData[displayTimeIndex]?.failureRate)
-                  ? timeSeriesData[displayTimeIndex]?.failureRate?.toFixed(2)
+                  ? timeSeriesData[displayTimeIndex]?.failureRate?.toFixed(6)
                   : 'N/A'
               }}
             </div>
@@ -796,7 +809,7 @@ const compareAlgorithms = async () => {
             <template v-else-if="column.key === 'failureRate'">
               {{
                 record.failureRate !== undefined && !isNaN(record.failureRate)
-                  ? record.failureRate.toFixed(2)
+                  ? record.failureRate.toFixed(6)
                   : 'N/A'
               }}
             </template>

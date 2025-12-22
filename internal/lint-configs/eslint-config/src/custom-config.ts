@@ -163,6 +163,16 @@ const customConfig: Linter.Config[] = [
       'no-console': 'off',
     },
   },
+  {
+    // 忽略特定文件的HTML闭合标签换行规则（prettier格式化冲突）
+    files: [
+      'apps/web-antd/src/modules/rbd/components/ProjectCalculationPanel.vue',
+      'packages/effects/layouts/src/widgets/user-manual/user-manual-button.vue',
+    ],
+    rules: {
+      'vue/html-closing-bracket-newline': 'off',
+    },
+  },
 ];
 
 export { customConfig };

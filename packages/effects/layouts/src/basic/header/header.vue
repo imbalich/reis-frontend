@@ -13,6 +13,7 @@ import {
   LanguageToggle,
   PreferencesButton,
   ThemeToggle,
+  UserManualButton,
 } from '../../widgets';
 
 interface Props {
@@ -47,6 +48,12 @@ const rightSlots = computed(() => {
       name: 'global-search',
     });
   }
+
+  // 用户手册按钮，位置在搜索和设置之间
+  list.push({
+    index: REFERENCE_VALUE + 5,
+    name: 'user-manual',
+  });
 
   if (preferencesButtonPosition.value.header) {
     list.push({
@@ -149,6 +156,10 @@ function clearPreferencesAndLogout() {
             :menus="accessStore.accessMenus"
             class="mr-1 sm:mr-4"
           />
+        </template>
+
+        <template v-else-if="slot.name === 'user-manual'">
+          <UserManualButton class="mr-1" />
         </template>
 
         <template v-else-if="slot.name === 'preferences'">
