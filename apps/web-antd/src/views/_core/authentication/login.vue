@@ -223,14 +223,21 @@ const formSchema = computed((): VbenFormSchema[] => {
     <!-- OA 自动登录加载遮罩 -->
     <div v-if="oaAutoLoginLoading" class="oa-auto-login-overlay">
       <div class="oa-auto-login-content">
-        <div class="oa-auto-login-spinner" />
+        <div class="oa-auto-login-spinner"></div>
         <p class="oa-auto-login-text">正在跳转到 OA 平台登录...</p>
       </div>
     </div>
 
-    <AuthenticationLogin :form-schema="formSchema" :loading="authStore.loginLoading" :show-forget-password="false"
-      :show-code-login="false" :show-qrcode-login="false" :show-register="false" :show-third-party-login="true"
-      @submit="authStore.authLogin">
+    <AuthenticationLogin
+      :form-schema="formSchema"
+      :loading="authStore.loginLoading"
+      :show-forget-password="false"
+      :show-code-login="false"
+      :show-qrcode-login="false"
+      :show-register="false"
+      :show-third-party-login="true"
+      @submit="authStore.authLogin"
+    >
       <template #third-party-login>
         <OAuth2OaLogin />
       </template>
@@ -247,26 +254,23 @@ const formSchema = computed((): VbenFormSchema[] => {
 
 .oa-auto-login-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.9);
+  inset: 0;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  background-color: rgb(255 255 255 / 90%);
 }
 
 .dark .oa-auto-login-overlay {
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgb(0 0 0 / 90%);
 }
 
 .oa-auto-login-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 16px;
+  align-items: center;
 }
 
 .oa-auto-login-spinner {
@@ -294,9 +298,9 @@ const formSchema = computed((): VbenFormSchema[] => {
 }
 
 .oa-auto-login-text {
+  margin: 0;
   font-size: 16px;
   color: #333;
-  margin: 0;
 }
 
 .dark .oa-auto-login-text {
