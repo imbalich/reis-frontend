@@ -2,14 +2,16 @@
 import type { VbenFormSchema } from '@vben/common-ui';
 // import type { BasicOption } from '@vben/types';
 
-import { computed, h, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { AuthenticationLogin, z } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 import { useAccessStore } from '@vben/stores';
 
-import { Image } from 'ant-design-vue';
+import { Image, message } from 'ant-design-vue';
 
+import { getOAuth2OA } from '#/plugins/oauth2/api';
 import OAuth2OaLogin from '#/plugins/oauth2/views/oa-login.vue';
 import { useAuthStore } from '#/store';
 
@@ -63,6 +65,11 @@ defineOptions({ name: 'Login' });
 
 const authStore = useAuthStore();
 const accessStore = useAccessStore();
+const route = useRoute();
+const router = useRouter();
+
+// OA 自动登录状态
+const oaAutoLoginLoading = ref(false);
 
 // 注释掉开发测试用的账号选项
 // const MOCK_USER_OPTIONS: BasicOption[] = [
@@ -86,6 +93,39 @@ const refreshCaptcha = async () => {
   }
 };
 refreshCaptcha();
+
+// 自动触发 OA 登录
+const handleAutoOALogin = async () => {
+  if (oaAutoLoginLoading.value) {
+    return;
+  }
+
+  oaAutoLoginLoading.value = true;
+  try {
+    const redirectUrl = await getOAuth2OA();
+    // 跳转到 OA 平台
+    window.location.href = redirectUrl;
+  } catch (error) {
+    console.error('OA 自动登录失败:', error);
+    message.error('OA 平台登录失败，请手动点击登录按钮重试');
+    // 移除 URL 参数，显示登录表单
+    const newQuery = { ...route.query };
+    delete newQuery.autoOAuth2;
+    router.replace({
+      path: route.path,
+      query: newQuery,
+    });
+    oaAutoLoginLoading.value = false;
+  }
+};
+
+// 检测 URL 参数，自动触发 OA 登录
+onMounted(() => {
+  const autoOAuth2 = route.query.autoOAuth2;
+  if (autoOAuth2 === 'oa') {
+    handleAutoOALogin();
+  }
+});
 
 const formSchema = computed((): VbenFormSchema[] => {
   return [
@@ -179,18 +219,87 @@ const formSchema = computed((): VbenFormSchema[] => {
 </script>
 
 <template>
-  <AuthenticationLogin
-    :form-schema="formSchema"
-    :loading="authStore.loginLoading"
-    :show-forget-password="false"
-    :show-code-login="false"
-    :show-qrcode-login="false"
-    :show-register="false"
-    :show-third-party-login="true"
-    @submit="authStore.authLogin"
-  >
-    <template #third-party-login>
-      <OAuth2OaLogin />
-    </template>
-  </AuthenticationLogin>
+  <div class="login-container">
+    <!-- OA 自动登录加载遮罩 -->
+    <div v-if="oaAutoLoginLoading" class="oa-auto-login-overlay">
+      <div class="oa-auto-login-content">
+        <div class="oa-auto-login-spinner" />
+        <p class="oa-auto-login-text">正在跳转到 OA 平台登录...</p>
+      </div>
+    </div>
+
+    <AuthenticationLogin :form-schema="formSchema" :loading="authStore.loginLoading" :show-forget-password="false"
+      :show-code-login="false" :show-qrcode-login="false" :show-register="false" :show-third-party-login="true"
+      @submit="authStore.authLogin">
+      <template #third-party-login>
+        <OAuth2OaLogin />
+      </template>
+    </AuthenticationLogin>
+  </div>
 </template>
+
+<style scoped>
+.login-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.oa-auto-login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.dark .oa-auto-login-overlay {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.oa-auto-login-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.oa-auto-login-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #00a0e9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.dark .oa-auto-login-spinner {
+  border-color: #333;
+  border-top-color: #00a0e9;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.oa-auto-login-text {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+.dark .oa-auto-login-text {
+  color: #fff;
+}
+</style>
