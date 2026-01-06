@@ -9,12 +9,13 @@ import { useVbenForm } from '#/adapter/form';
 import {
   createPartFittingApi,
   createProductFittingApi,
+  queryPartCalculateApi,
   queryPartFittingApi,
   queryProductFittingApi,
 } from '#/api';
 import DistributionFactory from '#/custom/weibull/factories/distrbution-fact';
 
-import { schema } from './data';
+import { calculateSchema, schema } from './data';
 import WeibullTrends from './weibull-trends.vue';
 
 const [Form, formApi] = useVbenForm({
@@ -24,8 +25,16 @@ const [Form, formApi] = useVbenForm({
   wrapperClass: 'grid grid-cols-4 gap-4',
 });
 
+const [CalculateForm, calculateFormApi] = useVbenForm({
+  layout: 'horizontal',
+  showDefaultActions: false,
+  schema: calculateSchema,
+  wrapperClass: 'grid-2',
+});
+
 const fittingData = ref<any[]>([]);
 const loading = ref(false);
+const calculateResult = ref<number[]>([]);
 
 // 顶部参数输入区的表单
 
@@ -74,6 +83,28 @@ const handleSubmit = async () => {
 // 处理重置表单
 const handleReset = () => {
   formApi.resetForm();
+};
+
+// 处理计算查询逻辑
+const handleCalculateQuery = async () => {
+  const { valid } = await calculateFormApi.validate();
+  if (!valid) return;
+  const calculateValues = await calculateFormApi.getValues();
+  const mainValues = await formApi.getValues();
+  const params = {
+    model: mainValues.model,
+    part: mainValues.part,
+    input_time1: calculateValues.input_time1,
+    input_time2: calculateValues.input_time2,
+  };
+  try {
+    const res = await queryPartCalculateApi(params);
+    // 这里可以处理返回的结果，例如显示在页面上
+    calculateResult.value = res;
+    message.success('计算查询成功');
+  } catch {
+    message.error('计算查询失败');
+  }
 };
 
 // 左侧策略选择表单
@@ -176,7 +207,7 @@ const chartStrategy = computed(() =>
     <!-- 下方左右布局 -->
     <div class="mt-4 flex w-full space-x-4" style="height: 440px">
       <!-- 左侧策略选择表单 -->
-      <a-card title="策略选择区" style="width: 300px">
+      <a-card title="策略选择区" style="width: 230px">
         <a-form layout="vertical">
           <a-form-item label="优度检验" style="margin-bottom: 40px">
             <a-select v-model:value="selectedGoodness" style="width: 100%">
@@ -224,6 +255,26 @@ const chartStrategy = computed(() =>
         <div v-else style="padding: 60px 0; color: #aaa; text-align: center">
           请先查询并选择分布类型
         </div>
+      </a-card>
+      <a-card title="计算结果区" style="width: 230px">
+        <CalculateForm style="margin-left: -50px" />
+        <a-button
+          type="primary"
+          @click="handleCalculateQuery"
+          style="position: absolute; right: 10px; top: 10px"
+        >
+          查询
+        </a-button>
+        <a-divider />
+        <a-form>
+          <a-form-item label="基准故障率">
+            {{ calculateResult[0] }}
+          </a-form-item>
+          <a-form-item label="对比故障率">
+            {{ calculateResult[1] }}
+          </a-form-item>
+          <a-form-item label="涨幅"> {{ calculateResult[2] }}% </a-form-item>
+        </a-form>
       </a-card>
     </div>
   </div>

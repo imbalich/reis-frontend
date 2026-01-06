@@ -26,6 +26,13 @@ export interface fitmodelParams {
   source?: number; // 0:自动,1:手动
 }
 
+export interface fitCalculateParams {
+  model: string;
+  part: string;
+  input_time1: string;
+  input_time2: string;
+}
+
 export function createProductFittingApi(params: fitmodelParams) {
   return requestClient.post('/api/v1/fit/product/fit', params, {
     headers: {
@@ -51,6 +58,13 @@ export function createPartFittingApi(params: fitmodelParams) {
 
 export function queryPartFittingApi(params: fitmodelParams) {
   return requestClient.get('/api/v1/fit/part/fit', {
+    params,
+    paramsSerializer: 'repeat',
+  });
+}
+
+export function queryPartCalculateApi(params: fitCalculateParams) {
+  return requestClient.get('/api/v1/fit/part/fit/equivalent_lamda', {
     params,
     paramsSerializer: 'repeat',
   });
