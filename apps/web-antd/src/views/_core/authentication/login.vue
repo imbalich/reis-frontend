@@ -2,7 +2,7 @@
 import type { VbenFormSchema } from '@vben/common-ui';
 // import type { BasicOption } from '@vben/types';
 
-import { computed, h, onMounted, ref } from 'vue';
+import { computed, h, nextTick, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { AuthenticationLogin, z } from '@vben/common-ui';
@@ -87,12 +87,14 @@ const imageSrc = ref('');
 const refreshCaptcha = async () => {
   try {
     const captcha = await authStore.captcha();
-    imageSrc.value = `data:image/png;base64, ${captcha}`;
+    imageSrc.value = `data:image/png;base64,${captcha}`;
+    // 使用 nextTick 确保在下一个 DOM 更新周期后执行，避免组件更新错误
+    await nextTick();
   } catch (error) {
-    console.error(error);
+    console.error('验证码加载失败:', error);
+    message.error('验证码加载失败，请刷新页面重试');
   }
 };
-refreshCaptcha();
 
 // 自动触发 OA 登录
 const handleAutoOALogin = async () => {
@@ -121,9 +123,14 @@ const handleAutoOALogin = async () => {
 
 // 检测 URL 参数，自动触发 OA 登录
 onMounted(() => {
+  // 检测是否需要自动跳转到 OA 登录
   const autoOAuth2 = route.query.autoOAuth2;
   if (autoOAuth2 === 'oa') {
+    // 如果需要 OA 自动登录，直接跳转，不加载验证码
     handleAutoOALogin();
+  } else {
+    // 否则加载验证码
+    refreshCaptcha();
   }
 });
 
@@ -204,13 +211,14 @@ const formSchema = computed((): VbenFormSchema[] => {
     },
     {
       component: h(Image),
-      componentProps: {
+      componentProps: (_values, _formApi) => ({
+        // 使用函数形式确保每次渲染时都能获取最新的 imageSrc
         src: imageSrc.value,
         width: 120,
         height: 40,
         preview: false,
         onClick: refreshCaptcha,
-      },
+      }),
       fieldName: 'captchaImg',
       formItemClass: 'ml-auto -mt-[74px]',
     },
@@ -228,16 +236,9 @@ const formSchema = computed((): VbenFormSchema[] => {
       </div>
     </div>
 
-    <AuthenticationLogin
-      :form-schema="formSchema"
-      :loading="authStore.loginLoading"
-      :show-forget-password="false"
-      :show-code-login="false"
-      :show-qrcode-login="false"
-      :show-register="false"
-      :show-third-party-login="true"
-      @submit="authStore.authLogin"
-    >
+    <AuthenticationLogin :form-schema="formSchema" :loading="authStore.loginLoading" :show-forget-password="false"
+      :show-code-login="false" :show-qrcode-login="false" :show-register="false" :show-third-party-login="true"
+      @submit="authStore.authLogin">
       <template #third-party-login>
         <OAuth2OaLogin />
       </template>
