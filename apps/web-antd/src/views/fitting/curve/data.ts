@@ -105,3 +105,28 @@ export const Queryschema: VbenFormSchema[] = [
     label: '计算方法',
   },
 ];
+
+export const calculateSchema: VbenFormSchema[] = [
+  {
+    component: 'DatePicker',
+    fieldName: 'input_time1',
+    label: '基准日期',
+    componentProps: {
+      format: 'YYYY-MM-DD',
+      valueFormat: 'YYYY-MM-DD',
+      allowClear: true,
+      class: 'w-full',
+    },
+  },
+  {
+    component: 'DatePicker',
+    fieldName: 'input_time2',
+    label: '对比日期',
+    componentProps: {
+      format: 'YYYY-MM-DD',
+      valueFormat: 'YYYY-MM-DD',
+      allowClear: true,
+      class: 'w-full',
+    },
+  },
+];
