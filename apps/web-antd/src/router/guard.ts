@@ -119,15 +119,26 @@ function setupAccessGuard(router: Router) {
     accessStore.setAccessMenus(accessibleMenus);
     accessStore.setAccessRoutes(accessibleRoutes);
     accessStore.setIsAccessChecked(true);
-    const redirectPath = (from.query.redirect ??
-      (to.path === preferences.app.defaultHomePath
-        ? userInfo.homePath || preferences.app.defaultHomePath
-        : to.fullPath)) as string;
 
-    return {
-      ...router.resolve(decodeURIComponent(redirectPath)),
-      replace: true,
-    };
+    // ✅ 优化 redirectPath 计算逻辑
+    // 优先使用 from.query.redirect（登录页可能携带的 redirect 参数）
+    // 其次使用 to.path（登录后跳转的目标路径）
+    // 最后使用 userInfo.homePath 或默认首页
+    let redirectPath =
+      (from.query?.redirect as string) ??
+      (to.path !== LOGIN_PATH && to.path !== preferences.app.defaultHomePath
+        ? to.path
+        : userInfo.homePath || preferences.app.defaultHomePath);
+
+    // 如果 redirectPath 是编码过的，需要解码
+    try {
+      redirectPath = decodeURIComponent(redirectPath);
+    } catch {
+      // 如果解码失败，使用原始路径
+    }
+
+    // ✅ 修复：直接返回路径字符串，让 Vue Router 自动解析
+    return redirectPath;
   });
 }
 

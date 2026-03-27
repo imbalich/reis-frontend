@@ -30,12 +30,27 @@ export interface DmProductRes {
 }
 
 export function getDmProductListApi(params: DmProductParams) {
-  return requestClient.get<PaginationResult>('/api/v1/datamanage/product', {
-    params,
-    paramsSerializer: 'repeat',
-  });
+  return requestClient.get<PaginationResult<DmProductRes>>(
+    '/api/v1/datamanage/product',
+    {
+      params,
+      paramsSerializer: 'repeat',
+    },
+  );
 }
 
 export function getDmProductModelApi() {
   return requestClient.get(`/api/v1/datamanage/product/models`);
+}
+
+export interface GetProductRunTimeParams {
+  year_days?: number;
+  avg_worktime?: number;
+  avg_speed?: number;
+}
+
+export function getProductRunTimeParamsApi(model: string) {
+  return requestClient.get<GetProductRunTimeParams>(
+    `/api/v1/datamanage/product/by-model/${model}`,
+  );
 }

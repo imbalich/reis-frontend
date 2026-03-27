@@ -19,3 +19,4 @@ export * from './replace';
 export * from './role';
 export * from './scheduler';
 export * from './sense';
+export * from './weibull-project';

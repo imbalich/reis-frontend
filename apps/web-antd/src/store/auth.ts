@@ -72,14 +72,49 @@ export const useAuthStore = defineStore('auth', () => {
         userStore.setUserInfo(userInfo);
         accessStore.setAccessCodes(accessCodes);
 
+        // ✅ 重置权限检查状态，确保路由守卫重新生成路由表
+        accessStore.setIsAccessChecked(false);
+
         if (accessStore.loginExpired) {
           accessStore.setLoginExpired(false);
         } else {
-          onSuccess
-            ? await onSuccess?.()
-            : await router.push(
-                userInfo.homePath || preferences.app.defaultHomePath,
-              );
+          if (onSuccess) {
+            await onSuccess?.();
+          } else {
+            // ✅ 添加错误处理和调试信息
+            const targetPath =
+              userInfo.homePath || preferences.app.defaultHomePath;
+
+            // ✅ 使用 nextTick 延迟路由跳转，确保组件状态更新完成
+            await new Promise<void>((resolve) => {
+              // 使用 setTimeout 确保在下一个事件循环中执行
+              setTimeout(async () => {
+                try {
+                  const result = await router.push(targetPath);
+
+                  // ✅ 检查返回值，如果是 NavigationFailure，说明跳转失败
+                  if (
+                    result &&
+                    typeof result === 'object' &&
+                    'type' in result
+                  ) {
+                    // 如果跳转失败，尝试使用 router.replace
+                    await router.replace(targetPath);
+                  }
+                } catch {
+                  // 路由跳转失败，可能是路由守卫拦截或其他原因
+                  // 尝试使用 router.replace 作为备选方案
+                  try {
+                    await router.replace(targetPath);
+                  } catch {
+                    // 如果都失败，使用 window.location 强制跳转
+                    window.location.href = targetPath;
+                  }
+                }
+                resolve();
+              }, 0);
+            });
+          }
         }
 
         // 初始化WebSocket连接

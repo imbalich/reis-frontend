@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { EchartsUIType } from '@vben/plugins/echarts';
 
-import type { ChartPoint } from '#/custom/weibull/chart-data';
+import type { ChartPoint, TimeParams } from '#/custom/weibull/chart-data';
 import type { DistributionStrategy } from '#/custom/weibull/strategies/types';
 
 import { computed, onMounted, ref, watch } from 'vue';
@@ -13,13 +13,18 @@ import chartData from '#/custom/weibull/chart-data';
 const props = defineProps<{
   funcType: string;
   strategy: DistributionStrategy;
+  timeParams?: TimeParams;
 }>();
 
 const chartRef = ref<EchartsUIType>();
 const { renderEcharts } = useEcharts(chartRef);
 
 const chartPoints = computed<ChartPoint[]>(() =>
-  chartData.getChartData(props.strategy, props.funcType.toUpperCase()),
+  chartData.getChartData(
+    props.strategy,
+    props.funcType.toUpperCase(),
+    props.timeParams,
+  ),
 );
 
 const formatYearLabel = (monthIndex: number) =>
@@ -167,7 +172,10 @@ const renderChart = () => {
 };
 
 onMounted(renderChart);
-watch([() => props.strategy, () => props.funcType], renderChart);
+watch(
+  [() => props.strategy, () => props.funcType, () => props.timeParams],
+  renderChart,
+);
 </script>
 
 <template>

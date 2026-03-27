@@ -11,6 +11,27 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
+        name: 'WeibullImportList',
+        path: '/fitting/weibull-import/list',
+        component: () =>
+          import('#/views/fitting/weibull-import/list/index.vue'),
+        meta: {
+          title: '导入分析项目',
+          icon: 'ant-design:folder-open-outlined',
+        },
+      },
+      {
+        name: 'WeibullImportDetail',
+        path: '/fitting/weibull-import/:id',
+        component: () =>
+          import('#/views/fitting/weibull-import/detail/index.vue'),
+        meta: {
+          title: '项目详情',
+          hideInMenu: true,
+          keepAlive: true,
+        },
+      },
+      {
         name: 'CurveFit',
         path: '/fitting/curve',
         component: () => import('#/views/fitting/curve/index.vue'),

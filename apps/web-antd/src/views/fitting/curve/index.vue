@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { fitmodelParams } from '#/api';
+import type { TimeParams } from '#/custom/weibull/chart-data';
 
 import { computed, ref, watch } from 'vue';
 
@@ -9,6 +10,7 @@ import { useVbenForm } from '#/adapter/form';
 import {
   createPartFittingApi,
   createProductFittingApi,
+  getProductRunTimeParamsApi,
   queryPartCalculateApi,
   queryPartFittingApi,
   queryProductFittingApi,
@@ -35,6 +37,7 @@ const [CalculateForm, calculateFormApi] = useVbenForm({
 const fittingData = ref<any[]>([]);
 const loading = ref(false);
 const calculateResult = ref<number[]>([]);
+const timeParams = ref<TimeParams | undefined>(undefined);
 
 // 顶部参数输入区的表单
 
@@ -65,6 +68,21 @@ const handleSubmit = async () => {
       : await queryProductFittingApi(Querydata);
     if (res && res.length > 0) {
       fittingData.value = res;
+
+      // ✅ 查询产品运行参数（时间参数）
+      try {
+        const runTimeParams = await getProductRunTimeParamsApi(Querydata.model);
+        // 将后端返回的参数转换为前端需要的格式
+        timeParams.value = {
+          daysPerYear: runTimeParams.year_days ?? undefined,
+          hoursPerDay: runTimeParams.avg_worktime ?? undefined,
+        };
+      } catch {
+        // 如果查询失败，使用默认值（undefined 会使用 chart-data.ts 中的默认值）
+        timeParams.value = undefined;
+        message.warn('获取产品运行参数失败，使用默认值');
+      }
+
       message.success('查询成功，已获取到数据');
       return;
     }
@@ -83,6 +101,8 @@ const handleSubmit = async () => {
 // 处理重置表单
 const handleReset = () => {
   formApi.resetForm();
+  fittingData.value = [];
+  timeParams.value = undefined;
 };
 
 // 处理计算查询逻辑
@@ -250,6 +270,7 @@ const chartStrategy = computed(() =>
           v-if="chartStrategy"
           :func-type="activeFuncType"
           :strategy="chartStrategy"
+          :time-params="timeParams"
           style="height: 350px"
         />
         <div v-else style="padding: 60px 0; color: #aaa; text-align: center">

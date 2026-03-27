@@ -2,7 +2,7 @@
 import type { VbenFormSchema } from '@vben/common-ui';
 // import type { BasicOption } from '@vben/types';
 
-import { computed, h, nextTick, onMounted, ref } from 'vue';
+import { computed, h, nextTick, onActivated, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { AuthenticationLogin, z } from '@vben/common-ui';
@@ -84,12 +84,29 @@ const oaAutoLoginLoading = ref(false);
 // ];
 
 const imageSrc = ref('');
+const loginFormRef = ref<InstanceType<typeof AuthenticationLogin> | null>(null);
+
+// ✅ 在刷新验证码时直接更新表单的 uuid 字段，而不是通过 watch
 const refreshCaptcha = async () => {
   try {
     const captcha = await authStore.captcha();
     imageSrc.value = `data:image/png;base64,${captcha}`;
-    // 使用 nextTick 确保在下一个 DOM 更新周期后执行，避免组件更新错误
+
+    // ✅ 直接更新表单的 uuid 字段，避免使用 watch
+    // 使用 nextTick 确保表单组件已经渲染完成
     await nextTick();
+
+    // ✅ 检查组件和 ref 是否有效
+    if (loginFormRef.value) {
+      try {
+        const formApi = loginFormRef.value.getFormApi();
+        if (formApi && accessStore.captchaUuid) {
+          formApi.setValues({ uuid: accessStore.captchaUuid });
+        }
+      } catch {
+        // 表单可能还未初始化，忽略错误
+      }
+    }
   } catch (error) {
     console.error('验证码加载失败:', error);
     message.error('验证码加载失败，请刷新页面重试');
@@ -121,7 +138,7 @@ const handleAutoOALogin = async () => {
   }
 };
 
-// 检测 URL 参数，自动触发 OA 登录
+// ✅ 组件挂载时的初始化逻辑
 onMounted(() => {
   // 检测是否需要自动跳转到 OA 登录
   const autoOAuth2 = route.query.autoOAuth2;
@@ -129,8 +146,26 @@ onMounted(() => {
     // 如果需要 OA 自动登录，直接跳转，不加载验证码
     handleAutoOALogin();
   } else {
-    // 否则加载验证码
+    // 否则加载验证码（refreshCaptcha 内部会更新表单的 uuid）
     refreshCaptcha();
+  }
+});
+
+// ✅ 组件激活时，如果验证码 UUID 已存在，同步到表单
+onActivated(() => {
+  if (accessStore.captchaUuid && loginFormRef.value) {
+    nextTick(() => {
+      if (loginFormRef.value) {
+        try {
+          const formApi = loginFormRef.value.getFormApi();
+          if (formApi) {
+            formApi.setValues({ uuid: accessStore.captchaUuid });
+          }
+        } catch {
+          // 表单可能还未初始化，忽略错误
+        }
+      }
+    });
   }
 });
 
@@ -200,14 +235,7 @@ const formSchema = computed((): VbenFormSchema[] => {
       component: 'VbenInput',
       fieldName: 'uuid',
       formItemClass: 'hidden',
-      dependencies: {
-        trigger: (_, form) => {
-          form.setValues({
-            uuid: accessStore.captchaUuid,
-          });
-        },
-        triggerFields: ['captchaImg'],
-      },
+      // ✅ 移除 dependencies，改为通过 watch 独立监控 captchaUuid 的变化
     },
     {
       component: h(Image),
@@ -236,9 +264,17 @@ const formSchema = computed((): VbenFormSchema[] => {
       </div>
     </div>
 
-    <AuthenticationLogin :form-schema="formSchema" :loading="authStore.loginLoading" :show-forget-password="false"
-      :show-code-login="false" :show-qrcode-login="false" :show-register="false" :show-third-party-login="true"
-      @submit="authStore.authLogin">
+    <AuthenticationLogin
+      ref="loginFormRef"
+      :form-schema="formSchema"
+      :loading="authStore.loginLoading"
+      :show-forget-password="false"
+      :show-code-login="false"
+      :show-qrcode-login="false"
+      :show-register="false"
+      :show-third-party-login="true"
+      @submit="authStore.authLogin"
+    >
       <template #third-party-login>
         <OAuth2OaLogin />
       </template>
