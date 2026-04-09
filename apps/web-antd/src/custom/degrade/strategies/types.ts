@@ -38,4 +38,5 @@ export interface DegradeFunctionData {
   current_threshold: null | number;
   x_current: null | number;
   difference: null | number;
+  all_negative?: boolean;
 }

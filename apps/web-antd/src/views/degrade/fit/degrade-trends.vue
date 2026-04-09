@@ -254,8 +254,18 @@ const getChartOptions = () => {
     const functionText = `${functionType}: ${paramInfo}`;
 
     // 3. y轴范围
-    const yMin = Math.min(...props.currentFunction.y_peaks) * 0.8;
-    const yMax = Math.max(...props.currentFunction.y_peaks) * 1.2;
+    let yMin = 0;
+    let yMax = 1;
+    if (props.currentFunction.all_negative === true) {
+      yMin = Math.max(...props.currentFunction.y_peaks) * 6.5;
+      yMax = 0;
+    }
+    if (props.currentFunction.all_negative === false) {
+      yMin = Math.min(...props.currentFunction.y_peaks) * 0.5;
+      yMax = Math.max(...props.currentFunction.y_peaks) * 1.5;
+    }
+    // const yMin = Math.min(...props.currentFunction.y_peaks) * 0.5;
+    // const yMax = Math.max(...props.currentFunction.y_peaks) * 1.5;
 
     return {
       chartData,

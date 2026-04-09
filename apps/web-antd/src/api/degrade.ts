@@ -11,6 +11,7 @@ export interface DegradeParams {
   name?: string;
   params?: string[];
   ci?: string;
+  all_negative?: boolean;
 }
 
 export interface QueryDegradeFunctionParams {
