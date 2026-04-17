@@ -4,6 +4,7 @@ import { requestClient } from './request';
 
 export interface DmFailureParams {
   product_model?: string;
+  product_config_code?: string;
   fault_location?: string;
   fault_material_code?: string;
   product_lifetime_stage?: string;
@@ -44,7 +45,10 @@ export interface DmFailureRes {
 
 export interface DmFaultLocationByModelParams {
   product_model?: string;
+  product_config_code?: string;
 }
+
+export type DmFailureDimensionPair = [string | null, string | null];
 
 export function getDmFailureListApi(params: DmFailureParams) {
   return requestClient.get<PaginationResult<DmFailureRes>>(
@@ -58,6 +62,12 @@ export function getDmFailureListApi(params: DmFailureParams) {
 
 export function getDmFailureModelApi() {
   return requestClient.get(`/api/v1/datamanage/failure/product_model`);
+}
+
+export function getDmFailureDimensionPairsApi() {
+  return requestClient.get<DmFailureDimensionPair[]>(
+    `/api/v1/datamanage/failure/dimension-pairs`,
+  );
 }
 
 export function getDmFaultLocationByModelApi(

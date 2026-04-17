@@ -20,6 +20,7 @@ export interface fitParams {
 
 export interface fitmodelParams {
   model: string;
+  product_config_code?: string;
   part?: string;
   input_date?: string;
   method?: string;
@@ -28,6 +29,7 @@ export interface fitmodelParams {
 
 export interface fitCalculateParams {
   model: string;
+  product_config_code?: string;
   part: string;
   input_time1: string;
   input_time2: string;

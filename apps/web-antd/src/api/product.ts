@@ -49,8 +49,16 @@ export interface GetProductRunTimeParams {
   avg_speed?: number;
 }
 
-export function getProductRunTimeParamsApi(model: string) {
+export function getProductRunTimeParamsApi(
+  model: string,
+  product_config_code?: string,
+) {
   return requestClient.get<GetProductRunTimeParams>(
     `/api/v1/datamanage/product/by-model/${model}`,
+    {
+      params: {
+        product_config_code,
+      },
+    },
   );
 }
