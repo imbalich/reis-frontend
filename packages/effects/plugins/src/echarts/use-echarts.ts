@@ -83,12 +83,15 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
   };
 
   function resize() {
-    chartInstance?.resize({
-      animation: {
-        duration: 300,
-        easing: 'quadraticIn',
-      },
-    });
+    if (!chartInstance) return;
+    setTimeout(() => {
+      chartInstance?.resize({
+        animation: {
+          duration: 300,
+          easing: 'quadraticIn',
+        },
+      });
+    }, 0);
   }
 
   watch([width, height], () => {

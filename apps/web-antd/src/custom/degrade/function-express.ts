@@ -11,14 +11,14 @@ export function getFunctionExpression(name: string, params: number[]): string {
     case 'logarithmic': {
       return `y = ${params[0]?.toFixed(4)} * ln(x + 1) + (${params[1]?.toFixed(4)})`;
     }
-    case 'power_law': {
-      return `y = ${params[0]?.toFixed(4)} * x^${params[1]?.toFixed(4)} + (${params[2]?.toFixed(4)})`;
-    }
-    case 'quadratic2p': {
+    case 'polynomial_2': {
       return `y = ${params[2]?.toFixed(4)} * x² + ${params[1]?.toFixed(4)} * x + (${params[3]?.toFixed(4)})`;
     }
-    case 'quadratic3p': {
+    case 'polynomial_3': {
       return `y = ${params[3]?.toFixed(4)} * x³ + ${params[2]?.toFixed(4)} * x² + ${params[1]?.toFixed(4)} * x + (${params[4]?.toFixed(4)})`;
+    }
+    case 'power_law': {
+      return `y = ${params[0]?.toFixed(4)} * x^${params[1]?.toFixed(4)} + (${params[2]?.toFixed(4)})`;
     }
     case 'sigmoid': {
       return `y = ${params[0]?.toFixed(4)} / (1 + e^(-(${params[1]?.toFixed(4)}) * (x - (${params[2]?.toFixed(4)})))) + ${params[3]?.toFixed(4)}`;
