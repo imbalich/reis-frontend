@@ -12,7 +12,7 @@ const DegradeChartData = {
   getChartData(
     strategy: DegradeFunctionStrategy,
     xPeaks: number[],
-    pointCount = 500,
+    pointCount = 5000,
   ): [number, number][] {
     const points: [number, number][] = [];
 
@@ -41,7 +41,7 @@ const DegradeChartData = {
   getConfidenceIntervalData(
     strategy: DegradeFunctionStrategy,
     xPeaks: number[],
-    pointCount = 500,
+    pointCount = 5000,
   ): {
     lower: [number, number][];
     upper: [number, number][];

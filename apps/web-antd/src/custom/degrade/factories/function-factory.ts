@@ -36,14 +36,14 @@ export const DegradeFunctionFactory = {
       case 'logarithmic': {
         return new Logarithmic(params, ci);
       }
-      case 'power_law': {
-        return new PowerLaw(params, ci);
-      }
-      case 'quadratic2p': {
+      case 'polynomial_2': {
         return new Quadratic2P(params, ci);
       }
-      case 'quadratic3p': {
+      case 'polynomial_3': {
         return new Quadratic3P(params, ci);
+      }
+      case 'power_law': {
+        return new PowerLaw(params, ci);
       }
       case 'sigmoid': {
         return new Sigmoid(params, ci);
