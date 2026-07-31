@@ -71,3 +71,37 @@ export function queryPartCalculateApi(params: fitCalculateParams) {
     paramsSerializer: 'repeat',
   });
 }
+
+
+// Aaron于2026-07-31新增：Aaron版本拟合接口
+// 新增原因：新增寿命曲线拟合-Aaron页面，需要调用后端fit-aaron分支
+// 新增作用：前端Aaron页面和旧寿命曲线拟合页面接口隔离
+export function createProductFittingAaronApi(params: fitmodelParams) {
+  return requestClient.post('/api/v1/fit-aaron/product/fit', params, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export function queryProductFittingAaronApi(params: fitmodelParams) {
+  return requestClient.get('/api/v1/fit-aaron/product/fit', {
+    params,
+    paramsSerializer: 'repeat',
+  });
+}
+
+export function createPartFittingAaronApi(params: fitmodelParams) {
+  return requestClient.post('/api/v1/fit-aaron/part/fit', params, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export function queryPartFittingAaronApi(params: fitmodelParams) {
+  return requestClient.get('/api/v1/fit-aaron/part/fit', {
+    params,
+    paramsSerializer: 'repeat',
+  });
+}

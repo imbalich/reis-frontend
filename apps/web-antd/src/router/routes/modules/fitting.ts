@@ -41,6 +41,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'CurveFitAaron',
+        path: '/fitting/curve-aaron',
+        component: () => import('#/views/fitting/curve-aaron/index.vue'),
+        meta: {
+          title: '寿命曲线拟合-Aaron',
+          icon: 'ant-design:line-chart-outlined',
+        },
+      },
+      {
         name: 'OptFit',
         path: '/fitting/opt',
         component: () => import('#/views/fitting/opt/index.vue'),
