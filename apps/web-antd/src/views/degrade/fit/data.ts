@@ -61,15 +61,16 @@ export const querySchema: VbenFormSchema[] = [
     fieldName: 'product_no',
     label: '产品编号',
     dependencies: {
-      triggerFields: ['product_model'],
+      triggerFields: ['product_model', 'check_bezier'],
       componentProps: (values) => ({
         allowClear: true,
         showSearch: true,
         class: 'w-full',
         api: async (params: any) => {
-          if (!params?.product_model) return [];
+          if (!params?.product_model || !params?.check_bezier) return [];
           const res = await getDmProductNoByModelApi({
             product_model: params.product_model,
+            check_bezier: params.check_bezier,
           });
           const options = res.map((item: string) => ({
             label: item,
@@ -79,6 +80,7 @@ export const querySchema: VbenFormSchema[] = [
         },
         params: {
           product_model: values.product_model,
+          check_bezier: values.check_bezier,
         },
       }),
     },

@@ -23,6 +23,18 @@ const props = defineProps<{
 const chartRef = ref<EchartsUIType>();
 const { renderEcharts, getChartInstance } = useEcharts(chartRef);
 
+/** 沿曲线横坐标取样，缩放过滤后窗口内仍留有点，虚线不会断开。 */
+function horizontalSamples(y: unknown, samples: number[][]) {
+  const value = Number(y);
+  if (y === undefined || y === null || y === '' || Number.isNaN(value)) {
+    return [];
+  }
+  if (!samples.length) {
+    return [];
+  }
+  return samples.map(([x]) => [x, value]);
+}
+
 // 渲染图表
 const renderChart = () => {
   const options = chartOptions.value;
@@ -81,6 +93,7 @@ const renderChart = () => {
       {
         type: 'slider',
         xAxisIndex: 0,
+        filterMode: 'filter',
         bottom: '10%',
         start: 0,
         end: 100,
@@ -146,8 +159,12 @@ const renderChart = () => {
         label: {
           show: true,
           position: 'top',
-          formatter: (params: any) =>
-            `(${params.value[0].toFixed(3)}, ${params.value[1].toFixed(4)})`,
+          formatter: (params: any) => {
+            const level = params.data?.repairLevel;
+            const [x, y] = params.value;
+            const coord = `(${Number(x).toFixed(3)}, ${Number(y).toFixed(4)})`;
+            return level ? `${level}\n${coord}` : coord;
+          },
         },
         emphasis: {
           // 悬停状态
@@ -174,7 +191,7 @@ const renderChart = () => {
         name: '失效阈值',
         type: 'line',
         data: chartOptions.value.failureThresholdLineData,
-        lineStyle: { opacity: 1, type: 'dashed' },
+        lineStyle: { type: 'dashed', color: '#FF0000' },
         itemStyle: { color: '#FF0000' },
         showSymbol: false,
         z: 3,
@@ -183,7 +200,7 @@ const renderChart = () => {
         name: '当前阈值',
         type: 'line',
         data: chartOptions.value.currentThresholdLineData,
-        lineStyle: { opacity: 1, type: 'dashed' },
+        lineStyle: { type: 'dashed', color: '#91CC75' },
         itemStyle: { color: '#91CC75' },
         showSymbol: false,
         z: 3,
@@ -248,25 +265,21 @@ const getChartOptions = () => {
       strategy,
       props.currentFunction.x_peaks,
     );
-    const peakData = props.currentFunction?.x_peaks.map((x, index) => [
-      x,
-      props.currentFunction?.y_peaks[index],
-    ]);
-    const xMax = chartData?.[chartData.length - 1]?.[0];
+    const repairLevels = props.currentFunction.repair_levels ?? [];
+    const peakData = props.currentFunction?.x_peaks.map((x, index) => ({
+      value: [x, props.currentFunction?.y_peaks[index]],
+      repairLevel: repairLevels[index] ?? '',
+    }));
     const failureThreshold = props.currentFunction?.failure_threshold;
-    const failureThresholdLineData = failureThreshold
-      ? [
-          [0, failureThreshold],
-          [xMax, failureThreshold],
-        ]
-      : [];
+    const failureThresholdLineData = horizontalSamples(
+      failureThreshold,
+      chartData,
+    );
     const currentThreshold = props.currentFunction?.current_threshold;
-    const currentThresholdLineData = currentThreshold
-      ? [
-          [0, currentThreshold],
-          [xMax, currentThreshold],
-        ]
-      : [];
+    const currentThresholdLineData = horizontalSamples(
+      currentThreshold,
+      chartData,
+    );
     // 2. 汇总所有渲染在图上的 Y 值，用于计算坐标轴范围
     // 包括：拟合曲线、置信区间上下界、阈值线
     const allYValues: number[] = [

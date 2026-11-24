@@ -29,6 +29,11 @@ export interface DmCheckBezierByModelParams {
   product_model?: string;
 }
 
+export interface DmProductNoParams {
+  product_model?: string;
+  check_bezier?: string;
+}
+
 export async function queryDegradeFunctionApi(
   params: QueryDegradeFunctionParams,
 ) {
@@ -49,7 +54,7 @@ export function getDmCheckBezierByModelApi(params: DmCheckBezierByModelParams) {
   });
 }
 
-export function getDmProductNoByModelApi(params: DmCheckBezierByModelParams) {
+export function getDmProductNoByModelApi(params: DmProductNoParams) {
   return requestClient.get(`/api/v1/datamanage/overhaul/product_no`, {
     params,
     paramsSerializer: 'repeat',

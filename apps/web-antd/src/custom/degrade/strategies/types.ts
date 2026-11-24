@@ -29,6 +29,7 @@ export interface DegradeFunctionData {
   check_bezier: string;
   x_peaks: number[];
   y_peaks: number[];
+  repair_levels?: string[];
   name: string;
   params: number[];
   ci: number;
